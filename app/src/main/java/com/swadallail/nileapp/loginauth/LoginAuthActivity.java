@@ -2,17 +2,24 @@ package com.swadallail.nileapp.loginauth;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -27,6 +34,7 @@ import com.swadallail.nileapp.AuthPhone;
 import com.swadallail.nileapp.MainActivity;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.Services.ChatService;
+import com.swadallail.nileapp.chatpage.ChatActivity;
 import com.swadallail.nileapp.data.FacebookToken;
 import com.swadallail.nileapp.data.MainResponse;
 import com.swadallail.nileapp.data.UserDataResponse;
@@ -55,28 +63,56 @@ public class LoginAuthActivity extends AppCompatActivity {
     CallbackManager callbackManager;
     private static final String EMAIL = "email";
     Profile profile;
-    Intent intent;
+    Intent intent ,goo;
     Intent open;
     String email, pass;
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    CheckBox check ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        chatService = new ChatService();
-        intent = new Intent(LoginAuthActivity.this, ChatService.class);
-        if (SharedHelper.getKey(this, "isLoged").equals("yes")) {
-
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-            Intent goo = new Intent(LoginAuthActivity.this, MainActivity.class);
-            startActivity(goo);
-            LoginAuthActivity.this.finish();
-        }
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login_auth);
+        chatService = new ChatService();
+        check = findViewById(R.id.ch_rememberme);
+        intent = new Intent(LoginAuthActivity.this, ChatService.class);
+        checkLocationPermission();
         handlers = new MyClick(this);
         binding.setHandlers(handlers);
+        if (SharedHelper.getKey(this, "isLoged").equals("yes")) {
+            intent.putExtra("token",SharedHelper.getKey(LoginAuthActivity.this , "token"));
+            Log.e("TOKENEE" ,SharedHelper.getKey(LoginAuthActivity.this , "token") );
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            chatService.getToken( SharedHelper.getKey(LoginAuthActivity.this, "token"), "");
+            goo = new Intent(LoginAuthActivity.this, MainActivity.class);
+            startActivity(goo);
+            finish();
+        }
         Log.e("Loged", SharedHelper.getKey(this, "isLoged"));
 
 
+    }
+
+    public void facebooklogin(View view) {
+        callbackManager = CallbackManager.Factory.create();
+        binding.btnFaceLogin.setPermissions("email");
+        binding.btnFaceLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                getUserData(loginResult.getAccessToken());
+                loginWithToken(loginResult.getAccessToken().getToken());
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+            }
+        });
     }
 
 
@@ -130,17 +166,18 @@ public class LoginAuthActivity extends AppCompatActivity {
                                 SharedHelper.putKey(LoginAuthActivity.this, "UserName", response.body().data.user.getUsername());
                                 SharedHelper.putKey(LoginAuthActivity.this, "role", response.body().data.user.getRole());
                                 SharedHelper.putKey(LoginAuthActivity.this, "token", response.body().data.token);
-//                                chatService.getToken(LoginAuthActivity.this, response.body().data.token, response.body().data.user.getUsername());
+                                chatService.getToken( response.body().data.token, response.body().data.user.getUsername());
+                                Log.e("TokenFromLogin" , response.body().data.token);
                                 Log.e("UserNameAfter", SharedHelper.getKey(LoginAuthActivity.this, "UserName"));
                                 SharedHelper.putKey(LoginAuthActivity.this, "name", response.body().data.user.getFullName());
                                 SharedHelper.putKey(LoginAuthActivity.this, "picUrl", response.body().data.user.getPic());
-                                if (binding.chRememberme.isChecked()) {
+                                if (check.isChecked()) {
                                     SharedHelper.putKey(LoginAuthActivity.this, "isLoged", "yes");
                                 } else {
                                     SharedHelper.putKey(LoginAuthActivity.this, "isLoged", "no");
                                 }
                                 dialog.dismiss();
-
+                                intent.putExtra("token",response.body().data.token);
                                 bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
                                 startActivity(open);
                                 LoginAuthActivity.this.finish();
@@ -167,36 +204,13 @@ public class LoginAuthActivity extends AppCompatActivity {
             finish();
         }
 
-        public void facebooklogin(View view) {
-            callbackManager = CallbackManager.Factory.create();
-            binding.btnFaceLogin.setPermissions("email");
-            binding.btnFaceLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-                @Override
-                public void onSuccess(LoginResult loginResult) {
-                    getUserData(loginResult.getAccessToken());
-                    loginWithToken(loginResult.getAccessToken().getToken());
-                }
 
-                @Override
-                public void onCancel() {
-
-                }
-
-                @Override
-                public void onError(FacebookException error) {
-
-                }
-            });
-
-        }
 
         public void googlelogin(View view) {
 
         }
 
-        public void rememberme(View view) {
-            /*SharedHelper.putKey(LoginAuthActivity.this, "isLoged", "yes");*/
-        }
+
 
         public void forgetpassword(View view) {
 
@@ -223,22 +237,25 @@ public class LoginAuthActivity extends AppCompatActivity {
         SharedHelper.putKey(LoginAuthActivity.this, "UserName", "");
         SharedHelper.putKey(LoginAuthActivity.this, "name", "");
         SharedHelper.putKey(LoginAuthActivity.this, "picUrl", "");
+        SharedHelper.putKey(LoginAuthActivity.this, "isLoged", "");
         call2.enqueue(new Callback<MainResponse<UserResponse<UserDataResponse>>>() {
             @Override
             public void onResponse(Call<MainResponse<UserResponse<UserDataResponse>>> call, Response<MainResponse<UserResponse<UserDataResponse>>> response) {
                 if (response.body() != null) {
                     if (response.body().data.ssuccess) {
                         SharedHelper.putKey(LoginAuthActivity.this, "token", response.body().data.token);
-                        chatService.getToken(LoginAuthActivity.this, response.body().data.token, response.body().data.user.getUsername());
+                        //chatService.getToken(LoginAuthActivity.this, response.body().data.token, response.body().data.user.getUsername());
                         SharedHelper.putKey(LoginAuthActivity.this, "retoken", response.body().data.refreshToken);
                         //Toast.makeText(LoginAuthActivity.this, response.body().data.token, Toast.LENGTH_SHORT).show();
                         SharedHelper.putKey(LoginAuthActivity.this, "isLoged", "yes");
                         SharedHelper.putKey(LoginAuthActivity.this, "UserName", response.body().data.user.getUsername());
                         Log.e("Name", response.body().data.user.getUsername());
+                        //chatService.getToken(LoginAuthActivity.this, response.body().data.token, response.body().data.user.getUsername());
                         //SharedHelper.putKey(LoginAuthActivity.this , "token" , response.body().data.token);
                         SharedHelper.putKey(LoginAuthActivity.this, "name", response.body().data.user.getFullName());
                         SharedHelper.putKey(LoginAuthActivity.this, "picUrl", response.body().data.user.getPic());
 //                        Intent intent = new Intent(LoginAuthActivity.this, ChatService.class);
+                        intent.putExtra("token",response.body().data.token);
                         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
                         startActivity(new Intent(LoginAuthActivity.this, MainActivity.class));
                     }
@@ -309,4 +326,72 @@ public class LoginAuthActivity extends AppCompatActivity {
             mBound = false;
         }
     };
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                new AlertDialog.Builder(this)
+                        .setTitle("الصلاحيات")
+                        .setMessage("الرجاء قبول الوصول لصلاحية الموقع")
+                        .setPositiveButton("موافق", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(LoginAuthActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSIONS_REQUEST_LOCATION);
+                            }
+                        })
+                        .create()
+                        .show();
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+
+                }
+                return;
+            }
+
+        }
+    }
 }

@@ -22,8 +22,8 @@ android {
         applicationId "com.swadallail.nileapp"
         minSdkVersion 20
         targetSdkVersion 29
-        versionCode 17
-        versionName "2.1.0"
+        versionCode 18
+        versionName "2.1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         useLibrary "org.apache.http.legacy"
         multiDexEnabled true
@@ -75,7 +75,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-places:17.0.0'
     implementation 'com.google.android.libraries.places:places:2.1.0'
 
-    implementation 'com.squareup.picasso:picasso:2.6.0-SNAPSHOT'
+    implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'me.relex:circleindicator:1.2.2@aar'

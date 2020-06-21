@@ -17,5 +17,7 @@ public class MessageViewModel{
     public int chatId ;
     @SerializedName("senderId")
     public String senderId ;
+    @SerializedName("img")
+    public String images ;
 
 }

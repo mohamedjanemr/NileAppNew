@@ -30,7 +30,15 @@
             android:layout_weight="1"
             android:paddingLeft="10dp"
             android:paddingRight="10dp" />
-
+        <ImageButton
+            android:id="@+id/bimgSend"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_image_black_24dp"
+            android:padding="15dp"
+            android:background="#eee"
+            android:text="Button"/>
         <ImageButton
             android:id="@+id/bSend"
             android:layout_width="60dp"

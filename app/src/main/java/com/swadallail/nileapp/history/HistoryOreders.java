@@ -75,6 +75,7 @@ public class HistoryOreders extends AppCompatActivity {
             @Override
             public void onFailure(Call<Main<GetOrdersRes>> call, Throwable t) {
                 dialog.dismiss();
+                Log.e("BodyError" , t.toString());
             }
         });
 

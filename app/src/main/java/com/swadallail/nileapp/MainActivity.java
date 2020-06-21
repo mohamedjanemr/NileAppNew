@@ -95,6 +95,7 @@ import com.swadallail.nileapp.SaveSharedPreference.SaveSharedPreferenceCityId;
 import com.swadallail.nileapp.SaveSharedPreference.SaveSharedPreferenceName;
 import com.swadallail.nileapp.SaveSharedPreference.SaveSharedPreferencePhone;
 import com.swadallail.nileapp.Services.ChatService;
+import com.swadallail.nileapp.Services.OnLogout;
 import com.swadallail.nileapp.api.model.Cities;
 import com.swadallail.nileapp.api.model.Data;
 import com.swadallail.nileapp.api.model.GetShopByTypeAndCityId;
@@ -111,6 +112,7 @@ import com.swadallail.nileapp.data.LocationBody;
 import com.swadallail.nileapp.data.Main;
 import com.swadallail.nileapp.data.MainResponse;
 import com.swadallail.nileapp.delegete.DelegeteHome;
+import com.swadallail.nileapp.helpers.Globals;
 import com.swadallail.nileapp.helpers.SharedHelper;
 import com.swadallail.nileapp.history.HistoryOreders;
 import com.swadallail.nileapp.loginauth.LoginAuthActivity;
@@ -142,10 +144,12 @@ import static android.R.attr.start;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
     GoogleMap gMap;
+    OnLogout logouts;
     CameraPosition cameraPosition;
     LatLng center, latLng, movelatlng;
     Marker mCurrLocation, locationMarker;
     private Circle mCircle;
+    ChatService chatService , getChatService;
     Button call, move, chat;
     boolean mBound = false;
     int flagInfo = 0; //فلاق عرض إظهار النافذه التي بالأسف كامل أو إخفائها كامله أثناء كتابة البحث
@@ -224,15 +228,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Button order;
     Location myLocation;
     double lat, lng;
+    SupportMapFragment mapView;
+    Intent intent;
+    Bundle extras;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SupportMapFragment mapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        //  mapView.getMapAsync(MainActivity.this);
+        getChatService = new ChatService();
+        mapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        intent = new Intent(this, ChatService.class);
+        //intent.putExtra("token", SharedHelper.getKey(MainActivity.this, "token"));
 
-
+        String to = SharedHelper.getKey(MainActivity.this, "token");
+        Log.e("TokenFromStartAc", to);
+        if (!to.isEmpty()) {
+            intent.putExtra("token", to);
+        }
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         call = (Button) findViewById(R.id.btn_call);
         order = findViewById(R.id.btn_order);
         move = (Button) findViewById(R.id.btn_move);
@@ -243,7 +257,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         linearSearch = (LinearLayout) this.findViewById(R.id.linearSearch);
         info = (LinearLayout) this.findViewById(R.id.infow);
         list = (RecyclerView) findViewById(R.id.listViewSearch);
-
 
 
         String role = SharedHelper.getKey(MainActivity.this, "role");
@@ -271,220 +284,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
 
             }
-        });
-
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @SuppressLint("WrongConstant")
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                gMap = googleMap;
-                if (granted()) {
-                    try {
-                        Location myLocation = getLastKnownLocation();
-                        mlat = myLocation.getLatitude();
-                        mlong = myLocation.getLongitude();
-                        sendLocation(mlat, mlong);
-                    } catch (Exception e) {
-                        Toast.makeText(MainActivity.this, "قم بقبول الصلاحية لتحديد موقعك", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-
-
-                new AppUpdater(MainActivity.this)
-                        .setUpdateFrom(UpdateFrom.JSON)
-                        .setUpdateJSON("https://www.nileappco.com/api/Version/CurrentVersion")
-                        .setTitleOnUpdateAvailable(getResources().getString(R.string.update))
-                        .setContentOnUpdateAvailable(getResources().getString(R.string.new_version))
-                        .setButtonUpdate(getResources().getString(R.string.update))
-                        .setButtonDismiss(getResources().getString(R.string.cancel))
-                        .setButtonDoNotShowAgain(getResources().getString(R.string.dont_show))
-                        .setCancelable(false)
-                        .start();
-
-
-                Intent intent = getIntent();
-                if (null != intent) {
-                    try {
-                        int flag = intent.getIntExtra("numbers3", defaultValue);
-                        double lat = intent.getDoubleExtra("numbers1", defaultValue);
-                        double lng = intent.getDoubleExtra("numbers2", defaultValue);
-
-                        if (flag == 111)
-                            getcamera(new LatLng(lat, lng), 16);
-
-                    } catch (Exception e) {
-
-                    }
-
-
-                }
-
-
-                gMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
-                    @Override
-                    public void onCameraIdle() {
-                        // if overlay already exists - remove it
-                        // if (mRedPoint != null) {
-                        //   mRedPoint.remove();
-                        //}
-
-                        // if(mCircle !=null)
-                        // mCircle.remove();
-
-                        try {
-
-                            double currentLat = gMap.getCameraPosition().target.latitude;
-                            double currentLong = gMap.getCameraPosition().target.longitude;
-
-
-                            LatLng latLng = new LatLng(mlat, mlong);
-
-                            String keyEnter = edittext.getText().toString();
-                            if (keyEnter.length() <= 0)
-                                edittext.setCursorVisible(false);
-
-                            if (info.getVisibility() == View.GONE)
-                                info.setVisibility(View.VISIBLE);
-
-
-                            // if(mCircle == null ){
-                            clearSearch();
-                            if (flagMarkerShow != 1) {
-                                //   gMap.clear();
-                                //////
-                                drawMarkerWithCircle(latLng);
-                                prog.setVisibility(View.VISIBLE);
-                                getMarker(GovernId, mlat, mlong);
-                            }
-
-                        } catch (Exception e) {
-
-                        }
-
-
-                    }
-                });
-
-
-                gMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
-                    @Override
-                    public void onCameraMoveStarted(int i) {
-
-                        try {
-
-                            if (flagMarkerShow != 1) {
-
-                                gMap.clear();
-                                deleteAraayMarker();
-                            }
-
-                        } catch (Exception e) {
-
-
-                        }
-
-                    }
-
-
-                });
-
-
-                gMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-                    @Override
-                    public void onCameraMove() {
-
-
-                        try {
-
-
-                        } catch (Exception e) {
-
-                        }
-
-                        //  if (mRedPoint != null) {
-                        //     mRedPoint.remove();
-                        //}
-
-                        //        double   currentLat = gMap.getCameraPosition().target.latitude;
-                        //      double  currentLong = gMap.getCameraPosition().target.longitude;
-
-//                        LatLng latLng  = new LatLng(currentLat, currentLong);
-
-
-                        // if(mCircle == null ){
-                        //                          drawMarkerWithCircle(latLng);
-
-                        //  getMarker(GovernId,currentLat,currentLong);
-                        //}else{
-                        //   updateMarkerWithCircle(latLng);
-                        // }
-
-
-                        /*
-                        double   currentLat = gMap.getCameraPosition().target.latitude;
-                        double  currentLong = gMap.getCameraPosition().target.longitude;
-
-                        mRedPoint = showRipples(new LatLng(currentLat, currentLong), Color.RED);
-*/
-                        //   MarkerOptions markerOptions = new MarkerOptions().position(gMap.getCameraPosition().target)
-                        //         .icon(BitmapDescriptorFactory.fromResource(R.drawable.location_pin_up));
-
-                        // gMap.addMarker(markerOptions);
-
-
-                    }
-
-                });
-
-
-                //double   currentLat = gMap.getCameraPosition().target.latitude;
-                //double  currentLong = gMap.getCameraPosition().target.longitude;
-                // gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLat, currentLong), 16));
-
-
-                mdrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-                mdrawerToggle = new ActionBarDrawerToggle(MainActivity.this, mdrawerLayout, R.string.open, R.string.close);
-                mdrawerLayout.addDrawerListener(mdrawerToggle);
-                mdrawerToggle.syncState();
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                mnavigationView = (NavigationView) findViewById(R.id.nav_view);
-
-
-                try {
-                    if (SaveSharedPreferencePhone.getUserName(MainActivity.this).length() != 0) {
-                        // get menu from navigationView
-                        Menu menu = mnavigationView.getMenu();
-
-                        // find MenuItem you want to change
-                        //MenuItem sign = menu.findItem(R.id.nav_item_eight);
-
-                        // set new title to the MenuItem
-                        //sign.setTitle("تسجيل الخروج");
-
-                        View header = mnavigationView.getHeaderView(0);
-                        /*View view=navigationView.inflateHeaderView(R.layout.nav_header_main);*/
-                        TextView nameU = (TextView) header.findViewById(R.id.nav_header_name);
-                        TextView phoneU = (TextView) header.findViewById(R.id.nav_header_phone);
-
-                        String name = SaveSharedPreferenceName.getUserName(MainActivity.this);
-                        String phone = SaveSharedPreferencePhone.getUserName(MainActivity.this);
-
-                        nameU.setText(name);
-                        phoneU.setText(phone);
-
-
-                    }
-                } catch (Exception e) {
-                }
-
-
-                mnavigationView.setNavigationItemSelectedListener(MainActivity.this);
-
-
-            }
-
-
         });
 
 
@@ -1045,17 +844,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onClick(View view) {
                     //SharedHelper.putKey(MainActivity.this, "token", "");
+                    getChatService.getToken( "null","null");
+                    stopService(intent);
+                    unbindService(mConnection);
                     SharedHelper.putKey(MainActivity.this, "UserName", "NONE");
                     SharedHelper.putKey(MainActivity.this, "name", "NONE");
                     SharedHelper.putKey(MainActivity.this, "picUrl", "NONE");//isLoged
                     SharedHelper.putKey(MainActivity.this, "isLoged", "no");
                     SharedHelper.putKey(MainActivity.this, "token", "NONE");
-//                    chatService = new ChatService() ;
-                    //chatService.getToken(MainActivity.this, "none" , "none");
-
-                    alertDialog.dismiss();
+                    Globals.Messages.clear();
                     SharedHelper.clearSharedPreferences(MainActivity.this);
-                    MainActivity.this.finish();
+                    alertDialog.dismiss();
+
+
+                    startActivity(new Intent(MainActivity.this , LoginAuthActivity.class));
+                    finish();
                 }
             });
             no.setOnClickListener(new View.OnClickListener() {
@@ -2163,28 +1966,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         clearSearch();
         edittext.setText("");
+
         linearSearch.setVisibility(View.INVISIBLE);
+        deleteAraayMarker();
         cross.setVisibility(View.INVISIBLE);
-        if (flagMarkerShow == 1) {
+
+        /*if (flagMarkerShow == 1) {
             createMarkerAfterSearch();
-            //Toast.makeText(MainActivity.this, "Here4", Toast.LENGTH_SHORT).show();
-        }
+            Toast.makeText(MainActivity.this, "Here5", Toast.LENGTH_SHORT).show();
+        }*/
 
-        if (info.getVisibility() == View.GONE) {
-            info.setVisibility(View.VISIBLE);
-            //Toast.makeText(MainActivity.this, "Here3", Toast.LENGTH_SHORT).show();
-        }
-
-
-        if (flagContentInfo == 1) {
-            //Toast.makeText(MainActivity.this, "Here2", Toast.LENGTH_SHORT).show();
+        if (flagInfo == 1) {
+            if (mdrawerLayout.isDrawerVisible(GravityCompat.START)) {
+                mdrawerLayout.closeDrawer(GravityCompat.START);
+            }
+            createMarkerAfterSearch();
             infoSleep();
-            gMap.clear();
-        } else if (mdrawerLayout.isDrawerVisible(GravityCompat.START)) {
-            mdrawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            getDialog();
+            if (flagMarkerShow == 0) {
+                gMap.clear();
+                deleteAraayMarker();
+                flagMarkerShow = 1;
+            } else if (mdrawerLayout.isDrawerVisible(GravityCompat.START)) {
+                mdrawerLayout.closeDrawer(GravityCompat.START);
+            } else {
+                getDialog();
+            }
         }
+
+        /*if (gMap != null) {
+            gMap.clear();
+            Toast.makeText(MainActivity.this, "Here4", Toast.LENGTH_SHORT).show();
+        }*/
+
+        /*if (mdrawerLayout.isDrawerVisible(GravityCompat.START)) {
+            Toast.makeText(MainActivity.this, "Here1", Toast.LENGTH_SHORT).show();
+            mdrawerLayout.closeDrawer(GravityCompat.START);
+
+        } else {
+            Toast.makeText(MainActivity.this, "Here0", Toast.LENGTH_SHORT).show();
+            getDialog();
+        }*/
+
 
         //Toast.makeText(MainActivity.this, "Non", Toast.LENGTH_SHORT).show();
 
@@ -2247,11 +2070,196 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onStart() {
-        /*Intent intent2 = new Intent(MainActivity.this, ChatService.class);
-        bindService(intent2, mConnection, Context.BIND_AUTO_CREATE);*/
+        mapView.getMapAsync(new OnMapReadyCallback() {
+            @SuppressLint("WrongConstant")
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                gMap = googleMap;
+                if (granted()) {
+                    try {
+                        Location myLocation = getLastKnownLocation();
+                        mlat = myLocation.getLatitude();
+                        mlong = myLocation.getLongitude();
+                        sendLocation(mlat, mlong);
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "قم بقبول الصلاحية لتحديد موقعك", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
+
+                new AppUpdater(MainActivity.this)
+                        .setUpdateFrom(UpdateFrom.JSON)
+                        .setUpdateJSON("https://www.nileappco.com/api/Version/CurrentVersion")
+                        .setTitleOnUpdateAvailable(getResources().getString(R.string.update))
+                        .setContentOnUpdateAvailable(getResources().getString(R.string.new_version))
+                        .setButtonUpdate(getResources().getString(R.string.update))
+                        .setButtonDismiss(getResources().getString(R.string.cancel))
+                        .setButtonDoNotShowAgain(getResources().getString(R.string.dont_show))
+                        .setCancelable(false)
+                        .start();
+
+
+                Intent intent = getIntent();
+                if (null != intent) {
+                    try {
+                        int flag = intent.getIntExtra("numbers3", defaultValue);
+                        double lat = intent.getDoubleExtra("numbers1", defaultValue);
+                        double lng = intent.getDoubleExtra("numbers2", defaultValue);
+
+                        if (flag == 111)
+                            getcamera(new LatLng(lat, lng), 16);
+
+                    } catch (Exception e) {
+
+                    }
+
+
+                }
+
+
+                gMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+                    @Override
+                    public void onCameraIdle() {
+                        // if overlay already exists - remove it
+                        // if (mRedPoint != null) {
+                        //   mRedPoint.remove();
+                        //}
+
+                        // if(mCircle !=null)
+                        // mCircle.remove();
+
+                        try {
+
+                            double currentLat = gMap.getCameraPosition().target.latitude;
+                            double currentLong = gMap.getCameraPosition().target.longitude;
+
+
+                            LatLng latLng = new LatLng(mlat, mlong);
+
+                            String keyEnter = edittext.getText().toString();
+                            if (keyEnter.length() <= 0)
+                                edittext.setCursorVisible(false);
+
+                            if (info.getVisibility() == View.GONE)
+                                info.setVisibility(View.VISIBLE);
+
+
+                            // if(mCircle == null ){
+                            clearSearch();
+                            if (flagMarkerShow != 1) {
+                                //   gMap.clear();
+                                //////
+                                drawMarkerWithCircle(latLng);
+                                prog.setVisibility(View.VISIBLE);
+                                getMarker(GovernId, mlat, mlong);
+                            }
+
+                        } catch (Exception e) {
+
+                        }
+
+
+                    }
+                });
+
+
+                gMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+                    @Override
+                    public void onCameraMoveStarted(int i) {
+
+                        try {
+
+                            if (flagMarkerShow != 1) {
+
+                                gMap.clear();
+                                deleteAraayMarker();
+                            }
+
+                        } catch (Exception e) {
+
+
+                        }
+
+                    }
+
+
+                });
+
+
+                gMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+                    @Override
+                    public void onCameraMove() {
+
+
+                        try {
+
+
+                        } catch (Exception e) {
+
+                        }
+
+
+                    }
+
+                });
+
+
+                mdrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+                mdrawerToggle = new ActionBarDrawerToggle(MainActivity.this, mdrawerLayout, R.string.open, R.string.close);
+                mdrawerLayout.addDrawerListener(mdrawerToggle);
+                mdrawerToggle.syncState();
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                mnavigationView = (NavigationView) findViewById(R.id.nav_view);
+
+
+                try {
+                    if (SaveSharedPreferencePhone.getUserName(MainActivity.this).length() != 0) {
+                        // get menu from navigationView
+                        Menu menu = mnavigationView.getMenu();
+
+
+                        View header = mnavigationView.getHeaderView(0);
+                        /*View view=navigationView.inflateHeaderView(R.layout.nav_header_main);*/
+                        TextView nameU = (TextView) header.findViewById(R.id.nav_header_name);
+                        TextView phoneU = (TextView) header.findViewById(R.id.nav_header_phone);
+
+                        String name = SaveSharedPreferenceName.getUserName(MainActivity.this);
+                        String phone = SaveSharedPreferencePhone.getUserName(MainActivity.this);
+
+                        nameU.setText(name);
+                        phoneU.setText(phone);
+
+
+                    }
+                } catch (Exception e) {
+                }
+
+
+                mnavigationView.setNavigationItemSelectedListener(MainActivity.this);
+
+
+            }
+
+
+        });
         super.onStart();
     }
-    /**/
 
+    /**/
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            ChatService.LocalBinder binder = (ChatService.LocalBinder) service;
+            chatService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
 }

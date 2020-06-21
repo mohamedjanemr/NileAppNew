@@ -2,6 +2,7 @@ package com.swadallail.nileapp.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.squareup.picasso.Picasso;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.data.MessageResponse;
 import com.swadallail.nileapp.modelviews.MessageViewModel;
@@ -20,16 +22,19 @@ public class MessageAdapter extends BaseAdapter {
 
     ArrayList<MessageViewModel> messages;
     Context context;
-    int isMin ;
+    int isMin;
+
     public MessageAdapter(Context context, ArrayList<MessageViewModel> messages) {
         this.context = context;
         this.messages = messages;
     }
-    public MessageAdapter(Context context, ArrayList<MessageViewModel> messages , int isMine) {
+
+    public MessageAdapter(Context context, ArrayList<MessageViewModel> messages, int isMine) {
         this.context = context;
         this.messages = messages;
         this.isMin = isMine;
     }
+
     @Override
     public int getViewTypeCount() {
         return 2;
@@ -60,7 +65,7 @@ public class MessageAdapter extends BaseAdapter {
 
         View rowView = convertView;
         ViewHolder holder = null;
-        final MessageViewModel temp = messages.get(position);
+        //final MessageViewModel temp = messages.get(position);
 
         int listViewItemType = getItemViewType(position);
 
@@ -68,11 +73,11 @@ public class MessageAdapter extends BaseAdapter {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
             if (listViewItemType == 1) {
                 rowView = inflater.inflate(R.layout.item_message_mine, parent, false);
-            }else if (listViewItemType == 0){
+            } else if (listViewItemType == 0) {
                 rowView = inflater.inflate(R.layout.item_message_other, parent, false);
-            }else if (isMin == 1){
+            } else if (isMin == 1) {
                 rowView = inflater.inflate(R.layout.item_message_mine, parent, false);
-            }else if(isMin == 0 ){
+            } else if (isMin == 0) {
                 rowView = inflater.inflate(R.layout.item_message_other, parent, false);
             }
             holder = new ViewHolder(rowView);
@@ -88,19 +93,25 @@ public class MessageAdapter extends BaseAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }*/
-
-        holder.from.setText(temp.from);
-        holder.content.setText(temp.content);
-
+        if (!messages.get(position).images.equals("")) {
+            Log.e("image22222" , messages.get(position).images);
+            Picasso.get().load(messages.get(position).images).into(holder.messageimg);
+        }else {
+            holder.messageimg.setVisibility(View.GONE);
+        }
+        holder.from.setText(messages.get(position).from);
+        holder.content.setText(messages.get(position).content);
         return rowView;
+
     }
 }
 
 class ViewHolder {
-    ImageView avatar;
+    ImageView avatar, messageimg;
     TextView from, content;
 
     ViewHolder(View v) {
+        messageimg = v.findViewById(R.id.image);
         avatar = (ImageView) v.findViewById(R.id.imgMessageAvatar);
         from = (TextView) v.findViewById(R.id.txtMessageOwner);
         content = (TextView) v.findViewById(R.id.txtMessageContent);

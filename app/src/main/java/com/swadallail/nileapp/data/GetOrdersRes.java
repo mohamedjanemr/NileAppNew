@@ -34,13 +34,33 @@ public class GetOrdersRes {
     @SerializedName("represtiveName")
     public String represtiveName ;
     @SerializedName("ownerRate")
-    public int ownerRate ;
+    public float ownerRate ;
     @SerializedName("represtiveRate")
-    public int represtiveRate ;
+    public float represtiveRate ;
     @SerializedName("status")
     public String status ;
     @SerializedName("state")
     public String state ;
+    @SerializedName("fromDistance")
+    public String fromdis ;
+    @SerializedName("toDistance")
+    public String todis ;
+
+    public String getFromdis() {
+        return fromdis;
+    }
+
+    public void setFromdis(String fromdis) {
+        this.fromdis = fromdis;
+    }
+
+    public String getTodis() {
+        return todis;
+    }
+
+    public void setTodis(String todis) {
+        this.todis = todis;
+    }
 
     public String getStatus() {
         return status;
@@ -58,19 +78,19 @@ public class GetOrdersRes {
         this.state = state;
     }
 
-    public int getReprestiveRate() {
+    public float getReprestiveRate() {
         return represtiveRate;
     }
 
-    public void setReprestiveRate(int represtiveRate) {
+    public void setReprestiveRate(float represtiveRate) {
         this.represtiveRate = represtiveRate;
     }
 
-    public int getOwnerRate() {
+    public float getOwnerRate() {
         return ownerRate;
     }
 
-    public void setOwnerRate(int ownerRate) {
+    public void setOwnerRate(float ownerRate) {
         this.ownerRate = ownerRate;
     }
 

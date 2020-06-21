@@ -12,7 +12,7 @@ public class SharedHelper {
         sharedPreferences = context.getSharedPreferences("Cache", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
         editor.putString(Key, Value);
-        editor.commit();
+        editor.apply();
 
     }
 

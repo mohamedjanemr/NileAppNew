@@ -35,9 +35,9 @@
                 android:layout_weight="0.8"
                 />
             <RatingBar
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.6"
+                android:layout_weight="0"
                 android:id="@+id/rate"
                 style="@style/Widget.AppCompat.RatingBar.Small"
                 android:numStars="5"
@@ -86,7 +86,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="5 KM"
-                android:id="@+id/loc_one"
+                android:id="@+id/loc_from"
                 android:textAlignment="center"
                 android:layout_weight="0.3"
                 />
@@ -115,7 +115,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="5 KM"
-                android:id="@+id/loc_two"
+                android:id="@+id/loc_to"
                 android:textAlignment="center"
                 android:layout_weight="0.3"
                 />

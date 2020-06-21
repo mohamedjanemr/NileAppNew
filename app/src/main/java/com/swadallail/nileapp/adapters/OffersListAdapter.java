@@ -64,7 +64,8 @@ public class OffersListAdapter extends RecyclerView.Adapter<OffersListAdapter.My
         holder.total.setText(mlist.data.get(position).getTotal());
         holder.ratingBar.setRating(Float.valueOf(mlist.data.get(position).getRate()));
         if(mlist.data.get(position).getImg() != null){
-            Picasso.with(con).load(mlist.data.get(position).getImg()).into(holder.img);
+            //Picasso.with(con).load(mlist.data.get(position).getImg()).into(holder.img);
+            Picasso.get().load(mlist.data.get(position).getImg()).into(holder.img);
         }else{
             holder.img.setImageResource(R.drawable.avatar_circle);
         }

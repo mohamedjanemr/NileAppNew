@@ -33,7 +33,15 @@
             android:paddingRight="7dp"
             android:textColor="#fff"
             android:text="User"/>
-
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/upload"
+            android:id="@+id/image"
+            android:scaleType="fitXY"
+            android:visibility="visible"
+            android:layout_marginBottom="5dp"
+            />
         <TextView
             android:id="@+id/txtMessageContent"
             android:layout_width="match_parent"

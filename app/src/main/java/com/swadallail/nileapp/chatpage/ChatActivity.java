@@ -1,18 +1,29 @@
 package com.swadallail.nileapp.chatpage;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -39,10 +50,13 @@ import com.swadallail.nileapp.helpers.SharedHelper;
 import com.swadallail.nileapp.loginauth.LoginAuthActivity;
 import com.swadallail.nileapp.modelviews.MessageViewModel;
 import com.swadallail.nileapp.network.ApiInterface;
+import com.swadallail.nileapp.uploaddoc.UploadData;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,13 +78,18 @@ public class ChatActivity extends AppCompatActivity {
     String user_id;
     GridView gridView;
     IntentFilter intentFilter;
+    int PERMISSION_REQUEST_CODE = 200;
+    String encodedImage ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
         Intent intent = new Intent(this, ChatService.class);
+        intent.putExtra("token",SharedHelper.getKey(ChatActivity.this, "token"));
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        //chatService.getToken(ChatActivity.this, SharedHelper.getKey(ChatActivity.this, "token"), "");
         Intent inGet = getIntent();
         user_id = inGet.getStringExtra("shopId");
         finalchatid = inGet.getIntExtra("chatId", 0);
@@ -84,23 +103,38 @@ public class ChatActivity extends AppCompatActivity {
         Log.e("chatid", finalchatid + "");
         getChatMessages(user_id, finalchatid);
         gridView = (GridView) findViewById(R.id.gvMessages);
-        gridView.setTranscriptMode(GridView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
+        gridView.setTranscriptMode(GridView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         ImageButton sendButton = findViewById(R.id.bSend);
+        ImageButton sendImage = findViewById(R.id.bimgSend);
+        sendImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final int GALLERY = 1;
+                final int CAM = 2;
+                showPictureDialognatface(GALLERY, CAM);
+            }
+        });
         final EditText editText = (EditText) findViewById(R.id.etMessageText);
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String message = editText.getText().toString();
-                if (message.isEmpty()) {
-                    Toast.makeText(ChatActivity.this, "رجاء قم بكتابة الرسالة", Toast.LENGTH_SHORT).show();
+                //encodedImage = "encodedImage" ;
+                if (message.isEmpty() && encodedImage == null) {
+                    Toast.makeText(ChatActivity.this, "رجاء قم بكتابة الرسالة او قم بأدراج صورة", Toast.LENGTH_SHORT).show();
                 } else {
                     editText.setText("");
                     CustomMessage object = new CustomMessage();
                     object.Message = message;
                     object.ChatId = finalchatid;
-                    chatService.Send(object);
+
+                    if (encodedImage != null){
+                        object.Img = encodedImage;
+                    }
+                    chatService.Send(object , SharedHelper.getKey(ChatActivity.this ,"token"));
+                    encodedImage = null ;
                 }
 
 
@@ -143,6 +177,8 @@ public class ChatActivity extends AppCompatActivity {
                         Toast.makeText(ChatActivity.this, "لا يوجد محادثة من قبل", Toast.LENGTH_SHORT).show();
                         adapter = new MessageAdapter(ChatActivity.this, Globals.Messages);
                         gridView.setAdapter(adapter);
+                        int index = adapter.getCount();
+                        gridView.smoothScrollToPosition(index-1);
                     }
                 }
 
@@ -151,9 +187,13 @@ public class ChatActivity extends AppCompatActivity {
                     if (response.body().data.messages.get(i).isMine == 1) {
                         adapter = new MessageAdapter(ChatActivity.this, Globals.Messages, 1);
                         gridView.setAdapter(adapter);
+                        int index = adapter.getCount();
+                        gridView.smoothScrollToPosition(index-1);
                     } else {
                         adapter = new MessageAdapter(ChatActivity.this, Globals.Messages, 0);
                         gridView.setAdapter(adapter);
+                        int index = adapter.getCount();
+                        gridView.smoothScrollToPosition(index-1);
                     }
                 }
 
@@ -175,6 +215,7 @@ public class ChatActivity extends AppCompatActivity {
             unregisterReceiver(myReceiver);
             mBound = false;
         }
+        Globals.Messages.clear();
         super.onStop();
 
     }
@@ -211,6 +252,8 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         SharedHelper.putKey(ChatActivity.this, "opened", "no");
+        Globals.Messages.clear();
+
         super.onDestroy();
     }
 
@@ -218,5 +261,107 @@ public class ChatActivity extends AppCompatActivity {
     protected void onPause() {
         SharedHelper.putKey(ChatActivity.this, "opened", "no");
         super.onPause();
+    }
+    private void showPictureDialognatface(int gallery, int Cam) {
+        AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
+        pictureDialog.setTitle("اختر الصورة من");
+        String[] pictureDialogItems = {
+                "معرض الصور",
+                "الكاميرا"};
+        pictureDialog.setItems(pictureDialogItems,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                if (checkPermissiongallary()) {
+                                    choosePhotoFromGallary(gallery);
+                                } else {
+                                    requestPermissiongallary();
+                                }
+
+                                break;
+                            case 1:
+                                if (checkPermissioncamera()) {
+                                    takePhotoFromCamera(Cam);
+                                } else {
+                                    requestPermissioncamera();
+                                }
+
+                                break;
+                        }
+                    }
+                });
+        pictureDialog.show();
+    }
+    private boolean checkPermissiongallary() {
+        int result2 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        return result2 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private boolean checkPermissioncamera() {
+        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        return result == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public void choosePhotoFromGallary(int GALLERY) {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(galleryIntent, GALLERY);
+    }
+
+    private void takePhotoFromCamera(int cam) {
+        Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, cam);
+    }
+    private void requestPermissiongallary() {
+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+
+    }
+
+    private void requestPermissioncamera() {
+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
+
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_CANCELED) {
+            return;
+        }
+        switch (requestCode) {
+            case 1:
+                if (data != null) {
+                    Uri contentURI = data.getData();
+                    try {
+                        ByteArrayOutputStream natface = new ByteArrayOutputStream();
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, natface);
+                        encodedImage = Base64.encodeToString(natface.toByteArray(), Base64.DEFAULT);
+                        Toast.makeText(ChatActivity.this, "تم اختيار الصورة", Toast.LENGTH_SHORT).show();
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(ChatActivity.this, "خطأ فى رفع الصورة!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            case 2:
+                if (data != null) {
+                    ByteArrayOutputStream natface = new ByteArrayOutputStream();
+                    Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+                    thumbnail.compress(Bitmap.CompressFormat.JPEG, 50, natface);
+                    //encodedImage = Base64.encodeToString(natface.toByteArray(), Base64.DEFAULT);
+
+                    Toast.makeText(ChatActivity.this, "تم اختيار الصورة", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+
+
     }
 }

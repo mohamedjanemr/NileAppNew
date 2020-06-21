@@ -70,9 +70,9 @@
                 android:layout_weight="0.8"
                 />
             <RatingBar
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.6"
+                android:layout_weight="0"
                 style="@style/Widget.AppCompat.RatingBar.Small"
                 android:numStars="5"
                 android:id="@+id/rate"

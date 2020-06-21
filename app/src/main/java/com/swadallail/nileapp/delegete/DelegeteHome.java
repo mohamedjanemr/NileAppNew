@@ -51,7 +51,7 @@ public class DelegeteHome extends AppCompatActivity {
         myLocation = getLastKnownLocation() ;
         lat = myLocation.getLatitude() ;
         lng = myLocation.getLongitude();
-        Toast.makeText(DelegeteHome.this , ""+lat+","+lng, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(DelegeteHome.this , ""+lat+","+lng, Toast.LENGTH_SHORT).show();
     }
 
     private void callApitoGetOrders() {

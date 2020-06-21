@@ -44,6 +44,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
         holder.order.setText(mlist.data.get(position).getDescription());
         holder.hours.setText(""+mlist.data.get(position).getHours());
         holder.id.setText(mlist.data.get(position).getOrderId()+"");
+        holder.loc1.setText(mlist.data.get(position).getFromdis());
+        holder.loc2.setText(mlist.data.get(position).getTodis());
         if (mlist.data.get(position).getStatus().equals("InProgress")){
             if(mlist.data.get(position).getState().equals("Picked")){
                 holder.status.setText("تم استلام الطلب");
@@ -53,7 +55,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
         }else {
             holder.status.setText("انتهى");
         }
-        Log.e("Image" , mlist.data.get(position).getImg());
+
 
         rule = SharedHelper.getKey(con, "role");
         if(rule.equals("WebClient")){
@@ -78,7 +80,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
                 }else{
                     goToDe.putExtra("orderOwner" , mlist.data.get(position).getOwnerName());
                 }
-
+                goToDe.putExtra("repreid" , mlist.data.get(position).getReprestiveId());
                 goToDe.putExtra("orderOwnerID" , mlist.data.get(position).getOwnerId());
                 goToDe.putExtra("orderID" , mlist.data.get(position).getOrderId());
                 goToDe.putExtra("orderTo" , mlist.data.get(position).getToAddress());
@@ -88,7 +90,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
                 goToDe.putExtra("orderFromlat" , mlist.data.get(position).getFromLat());
                 goToDe.putExtra("orderFromlng" , mlist.data.get(position).getFromLng());
                 con.startActivity(goToDe);
-
             }
         });
 
@@ -100,7 +101,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView order , loc1 , loc2 , hours , name , ratNum , id , status;
+        TextView order , loc1, loc2, hours , name , ratNum , id , status;
         RatingBar ratingBar ;
 
         public MyViewHolder(@NonNull View itemView) {
@@ -109,8 +110,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
             id = itemView.findViewById(R.id.txt_orderid);
             ratingBar = itemView.findViewById(R.id.rate);
             order = itemView.findViewById(R.id.ordertext);
-            loc1 = itemView.findViewById(R.id.loc_one);
-            loc2 = itemView.findViewById(R.id.loc_two);
+            loc1 = itemView.findViewById(R.id.loc_from);
+            loc2 = itemView.findViewById(R.id.loc_to);
             hours = itemView.findViewById(R.id.hours);
             name = itemView.findViewById(R.id.txt_name);
             ratNum = itemView.findViewById(R.id.rate_num);
