@@ -11,6 +11,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.squareup.picasso.Picasso;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.data.MessageResponse;
@@ -18,11 +21,12 @@ import com.swadallail.nileapp.modelviews.MessageViewModel;
 
 import java.util.ArrayList;
 
-public class MessageAdapter extends BaseAdapter {
+public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder> {
 
     ArrayList<MessageViewModel> messages;
     Context context;
     int isMin;
+    View itemView;
 
     public MessageAdapter(Context context, ArrayList<MessageViewModel> messages) {
         this.context = context;
@@ -35,9 +39,34 @@ public class MessageAdapter extends BaseAdapter {
         this.isMin = isMine;
     }
 
+
+
+    @NonNull
     @Override
-    public int getViewTypeCount() {
-        return 2;
+    public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case 0:
+                itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_message_other, parent, false);
+                break;
+            case 1:
+                itemView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_message_mine, parent, false);
+                break;
+        }
+        return new MyHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull MyHolder holder, int position) {
+        if (!messages.get(position).images.equals("")) {
+            Log.e("image22222" , messages.get(position).images);
+            Picasso.get().load(messages.get(position).images).into(holder.messageimg);
+        }else {
+            holder.messageimg.setVisibility(View.GONE);
+        }
+        holder.from.setText(messages.get(position).from);
+        holder.content.setText(messages.get(position).content);
     }
 
     @Override
@@ -46,6 +75,11 @@ public class MessageAdapter extends BaseAdapter {
     }
 
     @Override
+    public int getItemCount() {
+        return messages.size();
+    }
+
+    /*@Override
     public int getCount() {
         return messages.size();
     }
@@ -53,14 +87,19 @@ public class MessageAdapter extends BaseAdapter {
     @Override
     public Object getItem(int position) {
         return messages.get(position);
-    }
+    }*/
 
-    @Override
+    /*@Override
     public long getItemId(int position) {
         return position;
     }
 
     @Override
+    public int getItemCount() {
+        return messages.get(position);
+    }*/
+
+    /*@Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View rowView = convertView;
@@ -86,13 +125,13 @@ public class MessageAdapter extends BaseAdapter {
             holder = (ViewHolder) rowView.getTag();
         }
 
-        /*try {
+        *//*try {
             byte[] decodedString = Base64.decode(temp.avatar.replace("data:image/false;base64,", ""), Base64.DEFAULT);
             Bitmap avatarBitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
             holder.avatar.setImageBitmap(avatarBitmap);
         } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }*//*
         if (!messages.get(position).images.equals("")) {
             Log.e("image22222" , messages.get(position).images);
             Picasso.get().load(messages.get(position).images).into(holder.messageimg);
@@ -103,10 +142,23 @@ public class MessageAdapter extends BaseAdapter {
         holder.content.setText(messages.get(position).content);
         return rowView;
 
+    }*/
+
+    public class MyHolder extends RecyclerView.ViewHolder {
+        ImageView avatar, messageimg;
+        TextView from, content;
+
+        public MyHolder(@NonNull View v) {
+            super(v);
+            messageimg = v.findViewById(R.id.image);
+            avatar = (ImageView) v.findViewById(R.id.imgMessageAvatar);
+            from = (TextView) v.findViewById(R.id.txtMessageOwner);
+            content = (TextView) v.findViewById(R.id.txtMessageContent);
+        }
     }
 }
 
-class ViewHolder {
+/*class ViewHolder {
     ImageView avatar, messageimg;
     TextView from, content;
 
@@ -115,6 +167,5 @@ class ViewHolder {
         avatar = (ImageView) v.findViewById(R.id.imgMessageAvatar);
         from = (TextView) v.findViewById(R.id.txtMessageOwner);
         content = (TextView) v.findViewById(R.id.txtMessageContent);
-    }
+    }*/
 
-}

@@ -54,6 +54,7 @@ public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.MyViewHolder
                 Intent acceptoffer= new Intent( con , AcceptOffers.class);
                 int oid = Integer.valueOf( mlist.data.get(position).getOrderId());
                 acceptoffer.putExtra("orderId" , oid);
+                acceptoffer.putExtra("ownerid" , mlist.data.get(position).getOwnerId());
                 con.startActivity(acceptoffer);
             }
         });

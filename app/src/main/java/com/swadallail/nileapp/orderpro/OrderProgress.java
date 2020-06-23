@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ import com.squareup.picasso.Picasso;
 import com.swadallail.nileapp.MainActivity;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.Services.ChatService;
+import com.swadallail.nileapp.chatpage.ChatActivity;
 import com.swadallail.nileapp.data.MainResponse;
 import com.swadallail.nileapp.data.PickedBody;
 import com.swadallail.nileapp.data.RateBody;
@@ -42,10 +44,11 @@ public class OrderProgress extends AppCompatActivity {
     Intent getDetails;
     ActivityOrderProgressBinding binding;
     MyClick handlers;
-    String otolat, otolng, ofromlat, ofromlng, oname, oid, ownerId , repid;
+    String otolat, otolng, ofromlat, ofromlng, oname, oid, ownerId, repid , ownerPhone , reprePhone;
     ProgressDialog dialog;
     int orderID = 0;
     String rule = "";
+    int done;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,24 +57,73 @@ public class OrderProgress extends AppCompatActivity {
         handlers = new MyClick(this);
         binding.setHandlers(handlers);
         rule = SharedHelper.getKey(this, "role");
-        if(rule.equals("WebClient")){
+
+
+        if (rule.equals("WebClient")) {
             binding.btnRec.setVisibility(View.GONE);
             binding.btnDone.setVisibility(View.GONE);
             binding.nname.setText("المندوب");
             binding.goo.setVisibility(View.GONE);
             binding.lin.setVisibility(View.GONE);
             binding.btnRatere.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             binding.btnRatere.setVisibility(View.GONE);
             binding.btnRec.setVisibility(View.VISIBLE);
             binding.btnDone.setVisibility(View.VISIBLE);
         }
         setData();
+        if (done == 1) {
+            binding.phoneCall.setVisibility(View.GONE);
+            binding.openChat.setVisibility(View.GONE);
+        } else {
+            binding.phoneCall.setVisibility(View.VISIBLE);
+            binding.openChat.setVisibility(View.VISIBLE);
+        }
+        binding.openChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent chat = new Intent(OrderProgress.this, ChatActivity.class);
+                if (rule.equals("WebClient")) {
+                    chat.putExtra("shopId", repid);
+                    startActivity(chat);
+                } else {
+                    chat.putExtra("shopId", ownerId);
+                    startActivity(chat);
+                }
+            }
+        });
+        binding.phoneCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                if (rule.equals("WebClient")) {
+                    if(!reprePhone.equals("") && reprePhone != null){
+                        callIntent.setData(Uri.parse("tel:"+reprePhone));//change the number
+                        startActivity(callIntent);
+                    }else {
+                        Toast.makeText(OrderProgress.this, "لا تستطيع التواصل مع المندوب", Toast.LENGTH_SHORT).show();
+                    }
+
+                } else {
+                    if(!ownerPhone.equals("") && ownerPhone != null){
+                        callIntent.setData(Uri.parse("tel:"+ownerPhone));//change the number
+                        startActivity(callIntent);
+                    }else {
+                        Toast.makeText(OrderProgress.this, "لا تستطيع التواصل مع العميل", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+            }
+        });
 
     }
 
     private void setData() {
         getDetails = getIntent();//image
+        done = getDetails.getIntExtra("enabled", 0);
+        ownerPhone = getDetails.getStringExtra("ownerPhone");
+        reprePhone = getDetails.getStringExtra("reprePhone");
         String img = getDetails.getStringExtra("image");
         String otxt = getDetails.getStringExtra("orderText");
         int oh = getDetails.getIntExtra("orderH", 0);
@@ -129,7 +181,8 @@ public class OrderProgress extends AppCompatActivity {
             mapIntent.setPackage("com.google.android.apps.maps");
             startActivity(mapIntent);
         }
-        public void showrateRepre(View view){
+
+        public void showrateRepre(View view) {
             ratingAlert();
         }
     }
@@ -228,7 +281,8 @@ public class OrderProgress extends AppCompatActivity {
             }
         });
     }
-    private void ratingAlert(){
+
+    private void ratingAlert() {
         AlertDialog.Builder dialogBuilder3 = new AlertDialog.Builder(OrderProgress.this);
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.ratealert, null);
@@ -242,10 +296,10 @@ public class OrderProgress extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 int rate = (int) rateuser.getRating();
-                if(rate != 0){
-                    hitRateApi(rate , repid);
+                if (rate != 0) {
+                    hitRateApi(rate, repid);
                     alertDialog3.cancel();
-                }else {
+                } else {
                     Toast.makeText(OrderProgress.this, "رجاء قم بتقييم المندوب", Toast.LENGTH_SHORT).show();
                 }
 
@@ -255,6 +309,7 @@ public class OrderProgress extends AppCompatActivity {
         alertDialog3.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         alertDialog3.show();
     }
+
     private void showRatingAlert() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(OrderProgress.this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -268,10 +323,10 @@ public class OrderProgress extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 int rate = (int) rateuser.getRating();
-                if(rate != 0){
+                if (rate != 0) {
                     hitRateApi(rate);
                     alertDialog.cancel();
-                }else {
+                } else {
                     Toast.makeText(OrderProgress.this, "رجاء قم بتقيم العميل", Toast.LENGTH_SHORT).show();
                 }
 
@@ -282,6 +337,7 @@ public class OrderProgress extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         alertDialog.show();
     }
+
     private void hitRateApi(int rate) {
         dialog = new ProgressDialog(OrderProgress.this);
         dialog.setMessage(getApplicationContext().getResources().getString(R.string.the_data_is_loaded));
@@ -293,7 +349,7 @@ public class OrderProgress extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
-        RateBody body = new RateBody(rate ,ownerId);
+        RateBody body = new RateBody(rate, ownerId);
         String token = "Bearer " + SharedHelper.getKey(OrderProgress.this, "token");
         Call<MainResponse> call = userclient.rateUser(token, body);
         call.enqueue(new Callback<MainResponse>() {
@@ -319,7 +375,8 @@ public class OrderProgress extends AppCompatActivity {
             }
         });
     }
-    private void hitRateApi(int rate , String repreid) {
+
+    private void hitRateApi(int rate, String repreid) {
         dialog = new ProgressDialog(OrderProgress.this);
         dialog.setMessage(getApplicationContext().getResources().getString(R.string.the_data_is_loaded));
         dialog.show();
@@ -330,7 +387,7 @@ public class OrderProgress extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
-        RateBody body = new RateBody(rate ,repreid);
+        RateBody body = new RateBody(rate, repreid);
         String token = "Bearer " + SharedHelper.getKey(OrderProgress.this, "token");
         Call<MainResponse> call = userclient.rateUser(token, body);
         call.enqueue(new Callback<MainResponse>() {
@@ -356,6 +413,7 @@ public class OrderProgress extends AppCompatActivity {
             }
         });
     }
+
     private void hitPickedApi() {
         dialog = new ProgressDialog(OrderProgress.this);
         dialog.setMessage(getApplicationContext().getResources().getString(R.string.the_data_is_loaded));

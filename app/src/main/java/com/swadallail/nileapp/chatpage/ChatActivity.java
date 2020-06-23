@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -76,7 +78,7 @@ public class ChatActivity extends AppCompatActivity {
     int finalchatid;
     String chatname;
     String user_id;
-    GridView gridView;
+    RecyclerView gridView;
     IntentFilter intentFilter;
     int PERMISSION_REQUEST_CODE = 200;
     String encodedImage ;
@@ -102,9 +104,9 @@ public class ChatActivity extends AppCompatActivity {
         Log.e("userid", user_id + "");
         Log.e("chatid", finalchatid + "");
         getChatMessages(user_id, finalchatid);
-        gridView = (GridView) findViewById(R.id.gvMessages);
+        gridView =  findViewById(R.id.gvMessages);
 
-        gridView.setTranscriptMode(GridView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        //gridView.setTranscriptMode(GridView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         ImageButton sendButton = findViewById(R.id.bSend);
         ImageButton sendImage = findViewById(R.id.bimgSend);
         sendImage.setOnClickListener(new View.OnClickListener() {
@@ -121,7 +123,6 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String message = editText.getText().toString();
-                //encodedImage = "encodedImage" ;
                 if (message.isEmpty() && encodedImage == null) {
                     Toast.makeText(ChatActivity.this, "رجاء قم بكتابة الرسالة او قم بأدراج صورة", Toast.LENGTH_SHORT).show();
                 } else {
@@ -175,25 +176,55 @@ public class ChatActivity extends AppCompatActivity {
                         Globals.Messages = response.body().data.messages;
                     } else {
                         Toast.makeText(ChatActivity.this, "لا يوجد محادثة من قبل", Toast.LENGTH_SHORT).show();
+                        gridView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
                         adapter = new MessageAdapter(ChatActivity.this, Globals.Messages);
                         gridView.setAdapter(adapter);
-                        int index = adapter.getCount();
-                        gridView.smoothScrollToPosition(index-1);
+                        gridView.scrollToPosition(adapter.getItemCount() - 1);
+                        //scrollToBottom();
+                        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                            @Override
+                            public void onChanged() {
+                                super.onChanged();
+                                gridView.scrollToPosition(adapter.getItemCount() - 1);
+                                //scrollToBottom();
+                            }
+                        });
                     }
                 }
 
 
                 for (int i = 0; i < response.body().data.messages.size(); i++) {
                     if (response.body().data.messages.get(i).isMine == 1) {
+                        gridView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
                         adapter = new MessageAdapter(ChatActivity.this, Globals.Messages, 1);
                         gridView.setAdapter(adapter);
-                        int index = adapter.getCount();
-                        gridView.smoothScrollToPosition(index-1);
+                        gridView.scrollToPosition(adapter.getItemCount() - 1);
+                        //gridView.setAdapter(adapter);
+
+                        //scrollToBottom();
+                        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                            @Override
+                            public void onChanged() {
+                                super.onChanged();
+                                gridView.scrollToPosition(adapter.getItemCount() - 1);
+                              //  scrollToBottom();
+                            }
+                        });
                     } else {
+                        gridView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
                         adapter = new MessageAdapter(ChatActivity.this, Globals.Messages, 0);
                         gridView.setAdapter(adapter);
-                        int index = adapter.getCount();
-                        gridView.smoothScrollToPosition(index-1);
+                        gridView.scrollToPosition(adapter.getItemCount() - 1);
+                        //gridView.setAdapter(adapter);
+                        //scrollToBottom();
+                        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                            @Override
+                            public void onChanged() {
+                                super.onChanged();
+                                gridView.scrollToPosition(adapter.getItemCount() - 1);
+                                //scrollToBottom();
+                            }
+                        });
                     }
                 }
 
@@ -248,6 +279,11 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
+    private void scrollToBottom() {
+        adapter.notifyDataSetChanged();
+        if (adapter.getItemCount() > 1)
+            gridView.getLayoutManager().smoothScrollToPosition(gridView, null, adapter.getItemCount() - 1);
+    }
 
     @Override
     protected void onDestroy() {

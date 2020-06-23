@@ -43,10 +43,12 @@ public class OffersListAdapter extends RecyclerView.Adapter<OffersListAdapter.My
     Main<OfferResponse> mlist ;
     ProgressDialog dialog;
     AlertDialog alertDialog ;
+    String owner ;
 
-    public OffersListAdapter(Context con, Main<OfferResponse> mlist) {
+    public OffersListAdapter(Context con, Main<OfferResponse> mlist , String ownerId) {
         this.con = con;
         this.mlist = mlist;
+        this.owner = ownerId;
     }
 
     @NonNull

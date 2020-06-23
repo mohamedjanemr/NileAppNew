@@ -30,6 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AcceptOffers extends AppCompatActivity {
     ActivityAcceptOffersBinding binding ;
     int orderid = 0 ;
+    String ownerId ;
     ProgressDialog dialog;
     OffersListAdapter adapter;
     @Override
@@ -38,6 +39,7 @@ public class AcceptOffers extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this , R.layout.activity_accept_offers);
         Intent id = getIntent();
         orderid = id.getIntExtra("orderId" , 0);
+        ownerId = id.getStringExtra("ownerid");
         //Toast.makeText(this, ""+orderid, Toast.LENGTH_SHORT).show();
         GetOffersofOrder(orderid);
     }
@@ -60,7 +62,7 @@ public class AcceptOffers extends AppCompatActivity {
             public void onResponse(Call<Main<OfferResponse>> call, Response<Main<OfferResponse>> response) {
                 if (response.body() != null){
                     Log.e("Body" , ""+response.body().data.size());
-                    adapter = new OffersListAdapter(AcceptOffers.this , response.body());
+                    adapter = new OffersListAdapter(AcceptOffers.this , response.body() , ownerId);
                     LinearLayoutManager mLayoutManager = new LinearLayoutManager(AcceptOffers.this);
                     mLayoutManager.setReverseLayout(true);
                     mLayoutManager.setStackFromEnd(true);

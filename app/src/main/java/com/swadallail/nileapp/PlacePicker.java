@@ -13,6 +13,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,7 +32,7 @@ import java.util.List;
 
 public class PlacePicker extends AppCompatActivity {
 
-GoogleMap gMap;
+    GoogleMap gMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +40,6 @@ GoogleMap gMap;
         setContentView(R.layout.placepicker);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
 
         SupportMapFragment mapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -59,16 +59,9 @@ GoogleMap gMap;
                 buildAlertMessageNoGps(9);
 
 
-               // LatLng center = new LatLng(15.5007, 32.5599);
-               // CameraPosition cameraPosition = new CameraPosition.Builder().target(center).zoom(10).build();
+                // LatLng center = new LatLng(15.5007, 32.5599);
+                // CameraPosition cameraPosition = new CameraPosition.Builder().target(center).zoom(10).build();
                 //gMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-
-
-
-
-
-
 
 
                 gMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
@@ -80,16 +73,14 @@ GoogleMap gMap;
 
                         imgPinUp.setVisibility(View.GONE);
 
-                           MarkerOptions markerOptions = new MarkerOptions().position(gMap.getCameraPosition().target)
-                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkl));
+                        MarkerOptions markerOptions = new MarkerOptions().position(gMap.getCameraPosition().target)
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkl));
 
-                         gMap.addMarker(markerOptions);
+                        gMap.addMarker(markerOptions);
 
                     }
 
                 });
-
-
 
 
                 gMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
@@ -102,8 +93,8 @@ GoogleMap gMap;
 
                         imgPinUp.setVisibility(View.VISIBLE);
 
-                     //   MarkerOptions markerOptions = new MarkerOptions().position(gMap.getCameraPosition().target)
-                       //         .icon(BitmapDescriptorFactory.fromResource(R.drawable.location_pin_up));
+                        //   MarkerOptions markerOptions = new MarkerOptions().position(gMap.getCameraPosition().target)
+                        //         .icon(BitmapDescriptorFactory.fromResource(R.drawable.location_pin_up));
 
                         // gMap.addMarker(markerOptions);
 
@@ -113,10 +104,8 @@ GoogleMap gMap;
                 });
 
 
-
             }
-            });
-
+        });
 
 
     }
@@ -141,10 +130,9 @@ GoogleMap gMap;
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == 1){
+        if (requestCode == 1) {
 
-            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 gMap.setMyLocationEnabled(true);
             }
@@ -154,15 +142,13 @@ GoogleMap gMap;
     }
 
 
-
-
     public void current(int x) {
         try {
             // buildAlertMessageNoGps(x);
             Location myLocation = getLastKnownLocation();
             double latti = myLocation.getLatitude();
             double longi = myLocation.getLongitude();
-           LatLng latLng = new LatLng(latti, longi);
+            LatLng latLng = new LatLng(latti, longi);
             getcamera(latLng, 18);
             //  addMarker(latLng, getResources().getString(R.string.my_place));
         } catch (Exception e) {
@@ -178,11 +164,10 @@ GoogleMap gMap;
 
 
     private void getcamera(LatLng latlng, int zoomGet) {
-       LatLng center = latlng;
-       CameraPosition cameraPosition = new CameraPosition.Builder().target(center).zoom(zoomGet).build();
+        LatLng center = latlng;
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(center).zoom(zoomGet).build();
         gMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
-
 
 
     @SuppressLint("WrongConstant")
@@ -230,7 +215,7 @@ GoogleMap gMap;
 
 
     private Location getLastKnownLocation() {
-      LocationManager  mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        LocationManager mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         List<String> providers = mLocationManager.getProviders(true);
         Location bestLocation = null;
         for (String provider : providers) {
@@ -247,13 +232,11 @@ GoogleMap gMap;
     }
 
 
-
-
     public void selectLocationButton(View v) {
 
 
-        double   currentLat = gMap.getCameraPosition().target.latitude;
-        double  currentLong = gMap.getCameraPosition().target.longitude;
+        double currentLat = gMap.getCameraPosition().target.latitude;
+        double currentLong = gMap.getCameraPosition().target.longitude;
 
 
         Intent intent1 = new Intent(PlacePicker.this, AddActivity.class);
@@ -268,13 +251,11 @@ GoogleMap gMap;
     }
 
 
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                onBackPressed();
                 return true;
         }
 

@@ -79,6 +79,7 @@ public class DelegeteHome extends AppCompatActivity {
                     mLayoutManager.setStackFromEnd(true);
                     binding.recOrders.setLayoutManager(mLayoutManager);
                     binding.recOrders.setAdapter(adapter);
+
                 }
 
                 dialog.dismiss();

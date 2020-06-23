@@ -4,47 +4,67 @@ import com.google.gson.annotations.SerializedName;
 
 public class GetOrdersRes {
     @SerializedName("img")
-    public String img ;
+    public String img;
     @SerializedName("description")
-    public String description ;
+    public String description;
     @SerializedName("hours")
-    public int hours ;
+    public int hours;
     @SerializedName("fromLat")
-    public String fromLat ;
+    public String fromLat;
     @SerializedName("fromLng")
-    public String fromLng ;
+    public String fromLng;
     @SerializedName("toLat")
-    public String toLat ;
+    public String toLat;
     @SerializedName("toLng")
-    public String toLng ;
+    public String toLng;
     @SerializedName("fromAddress")
-    public String fromAddress ;
+    public String fromAddress;
     @SerializedName("toAddress")
-    public String toAddress ;
+    public String toAddress;
     @SerializedName("editable")
-    public Boolean editable ;
+    public Boolean editable;
     @SerializedName("orderId")
-    public String orderId ;
+    public String orderId;
     @SerializedName("ownerName")
-    public String ownerName ;
+    public String ownerName;
     @SerializedName("ownerId")
-    public String ownerId ;
+    public String ownerId;
     @SerializedName("represtiveId")
-    public String represtiveId ;
+    public String represtiveId;
     @SerializedName("represtiveName")
-    public String represtiveName ;
+    public String represtiveName;
     @SerializedName("ownerRate")
-    public float ownerRate ;
+    public float ownerRate;
     @SerializedName("represtiveRate")
-    public float represtiveRate ;
+    public float represtiveRate;
     @SerializedName("status")
-    public String status ;
+    public String status;
     @SerializedName("state")
-    public String state ;
+    public String state;
     @SerializedName("fromDistance")
-    public String fromdis ;
+    public String fromdis;
     @SerializedName("toDistance")
-    public String todis ;
+    public String todis;
+    @SerializedName("ownerMobile")
+    public String ownerMobile;
+    @SerializedName("represtiveMobile")
+    public String represtiveMobile;
+
+    public String getOwnerMobile() {
+        return ownerMobile;
+    }
+
+    public void setOwnerMobile(String ownerMobile) {
+        this.ownerMobile = ownerMobile;
+    }
+
+    public String getReprestiveMobile() {
+        return represtiveMobile;
+    }
+
+    public void setReprestiveMobile(String represtiveMobile) {
+        this.represtiveMobile = represtiveMobile;
+    }
 
     public String getFromdis() {
         return fromdis;

@@ -4,10 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.adapters.RoomsAdapter;
@@ -36,11 +39,13 @@ public class ChatRooms extends AppCompatActivity {
     ProgressDialog dialog;
     RoomsAdapter adapter ;
     ArrayList<ChatUsersResponse> list ;
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this , R.layout.activity_chat_rooms);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("المحادثات");
         handlers = new MyHandlers(this);
         binding.setHandlers(handlers);
@@ -98,5 +103,19 @@ public class ChatRooms extends AppCompatActivity {
             context = this.co;
         }
 
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true;
     }
 }

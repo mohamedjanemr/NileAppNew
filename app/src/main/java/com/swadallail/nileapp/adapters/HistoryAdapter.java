@@ -25,6 +25,7 @@ import java.util.ArrayList;
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHolder> {
     Context con ;
     Main<GetOrdersRes> mlist ;
+    int done = 0 ;
     String rule ;
     public HistoryAdapter(Context con, Main<GetOrdersRes> mlist) {
         this.con = con;
@@ -49,11 +50,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
         if (mlist.data.get(position).getStatus().equals("InProgress")){
             if(mlist.data.get(position).getState().equals("Picked")){
                 holder.status.setText("تم استلام الطلب");
-            }else {
+                done = 0 ;
+            }else  {
                 holder.status.setText("جارى استلام الطلب");
+                done = 0 ;
             }
         }else {
             holder.status.setText("انتهى");
+            done = 1 ;
         }
 
 
@@ -75,6 +79,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
                 goToDe.putExtra("image" , mlist.data.get(position).getImg());
                 goToDe.putExtra("orderText" , mlist.data.get(position).getDescription());
                 goToDe.putExtra("orderH" , mlist.data.get(position).getHours());
+                //goToDe.putExtra("orderH" , mlist.data.get(position).getHours());
+                try{
+                    goToDe.putExtra("ownerPhone" , mlist.data.get(position).getOwnerMobile());
+                    goToDe.putExtra("reprePhone" , mlist.data.get(position).getReprestiveMobile());
+                }catch (Exception e){
+                    Log.e("Phones" , "empty");
+                }
+
+                goToDe.putExtra("enabled" , done);
                 if(rule.equals("WebClient")){
                     goToDe.putExtra("orderOwner" , mlist.data.get(position).getReprestiveName());
                 }else{
