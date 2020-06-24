@@ -1,12 +1,16 @@
 package com.swadallail.nileapp.orderpro;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -48,7 +52,8 @@ public class OrderProgress extends AppCompatActivity {
     ProgressDialog dialog;
     int orderID = 0;
     String rule = "";
-    int done;
+    private static final int REQUEST_PHONE_CALL = 1;
+    String done;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,7 @@ public class OrderProgress extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_order_progress);
         handlers = new MyClick(this);
         binding.setHandlers(handlers);
+        phonePer();
         rule = SharedHelper.getKey(this, "role");
 
 
@@ -72,12 +78,13 @@ public class OrderProgress extends AppCompatActivity {
             binding.btnDone.setVisibility(View.VISIBLE);
         }
         setData();
-        if (done == 1) {
-            binding.phoneCall.setVisibility(View.GONE);
-            binding.openChat.setVisibility(View.GONE);
-        } else {
+        if (!done.equals("Done")) {
             binding.phoneCall.setVisibility(View.VISIBLE);
             binding.openChat.setVisibility(View.VISIBLE);
+
+        } else {
+            binding.phoneCall.setVisibility(View.GONE);
+            binding.openChat.setVisibility(View.GONE);
         }
         binding.openChat.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,9 +126,15 @@ public class OrderProgress extends AppCompatActivity {
 
     }
 
+    private void phonePer() {
+        if (ContextCompat.checkSelfPermission(OrderProgress.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(OrderProgress.this, new String[]{Manifest.permission.CALL_PHONE},REQUEST_PHONE_CALL);
+        }
+    }
+
     private void setData() {
         getDetails = getIntent();//image
-        done = getDetails.getIntExtra("enabled", 0);
+        done = getDetails.getStringExtra("enabled");
         ownerPhone = getDetails.getStringExtra("ownerPhone");
         reprePhone = getDetails.getStringExtra("reprePhone");
         String img = getDetails.getStringExtra("image");

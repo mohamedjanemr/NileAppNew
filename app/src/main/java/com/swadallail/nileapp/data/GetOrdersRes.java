@@ -49,6 +49,26 @@ public class GetOrdersRes {
     public String ownerMobile;
     @SerializedName("represtiveMobile")
     public String represtiveMobile;
+    @SerializedName("ownerTotalRate")
+    public int ownerTotalRate;
+    @SerializedName("represtiveTotalRate")
+    public int represtiveTotalRate;
+
+    public int getOwnerTotalRate() {
+        return ownerTotalRate;
+    }
+
+    public void setOwnerTotalRate(int ownerTotalRate) {
+        this.ownerTotalRate = ownerTotalRate;
+    }
+
+    public int getReprestiveTotalRate() {
+        return represtiveTotalRate;
+    }
+
+    public void setReprestiveTotalRate(int represtiveTotalRate) {
+        this.represtiveTotalRate = represtiveTotalRate;
+    }
 
     public String getOwnerMobile() {
         return ownerMobile;

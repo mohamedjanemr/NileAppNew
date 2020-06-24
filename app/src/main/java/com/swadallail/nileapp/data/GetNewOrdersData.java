@@ -37,6 +37,26 @@ public class GetNewOrdersData {
     public String fromdis ;
     @SerializedName("toDistance")
     public String todis ;
+    @SerializedName("ownerRate")
+    public float ownerRate ;
+    @SerializedName("ownerTotalRate")
+    public int ownerTotalRate ;
+
+    public float getOwnerRate() {
+        return ownerRate;
+    }
+
+    public void setOwnerRate(float ownerRate) {
+        this.ownerRate = ownerRate;
+    }
+
+    public int getOwnerTotalRate() {
+        return ownerTotalRate;
+    }
+
+    public void setOwnerTotalRate(int ownerTotalRate) {
+        this.ownerTotalRate = ownerTotalRate;
+    }
 
     public String getFromdis() {
         return fromdis;

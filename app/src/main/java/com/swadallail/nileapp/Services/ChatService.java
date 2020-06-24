@@ -137,7 +137,6 @@ public class ChatService extends Service implements OnLogout {
             case 3:
                 resultIntent = new Intent(this, HistoryOreders.class);
                 break;
-
             default:
                 resultIntent = new Intent(this, MainActivity.class);
         }

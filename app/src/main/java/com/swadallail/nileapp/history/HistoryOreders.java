@@ -63,8 +63,8 @@ public class HistoryOreders extends AppCompatActivity {
                     Log.e("Body" , ""+response.body().data.size());
                     adapter = new HistoryAdapter(HistoryOreders.this , response.body());
                     LinearLayoutManager mLayoutManager = new LinearLayoutManager(HistoryOreders.this);
-                    mLayoutManager.setReverseLayout(true);
-                    mLayoutManager.setStackFromEnd(true);
+                    /*mLayoutManager.setReverseLayout(true);
+                    mLayoutManager.setStackFromEnd(true);*/
                     binding.recHistory.setLayoutManager(mLayoutManager);
                     binding.recHistory.setAdapter(adapter);
                 }

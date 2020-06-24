@@ -29,6 +29,7 @@ import com.swadallail.nileapp.api.model.CheckUser;
 import com.swadallail.nileapp.api.model.ResultCheckUser;
 import com.swadallail.nileapp.api.service.UserClient;
 import com.swadallail.nileapp.data.MainResponse;
+import com.swadallail.nileapp.data.PhoneBody;
 import com.swadallail.nileapp.helpers.SharedHelper;
 import com.swadallail.nileapp.network.ApiInterface;
 import com.swadallail.nileapp.registerauth.RegisterAuthActivity;
@@ -223,7 +224,8 @@ public class AuthCode extends AppCompatActivity {
         ApiInterface userclient = retrofit.create(ApiInterface.class);//لربط الكائن ref وربطه بالapi
 
         String token = "Bearer "+ SharedHelper.getKey(AuthCode.this , "token") ;
-        Call<MainResponse> con = userclient.ConfirmPhone(token);
+        PhoneBody body = new PhoneBody(phoneNumber);
+        Call<MainResponse> con = userclient.ConfirmPhone(token , body);
 
 //للتنفيذ
         con.enqueue(new Callback<MainResponse>() {

@@ -60,10 +60,12 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
         holder.hours.setText("" + mlist.data.get(position).getHours());
         holder.name.setText("" + mlist.data.get(position).getOwnerName());
         holder.hours.setText("" + mlist.data.get(position).getHours());
-        holder.hours.setText("" + mlist.data.get(position).getHours());
+        //holder.hours.setText("" + mlist.data.get(position).getHours());
         holder.id.setText(mlist.data.get(position).getOrderId() + "");
         holder.loc1.setText(mlist.data.get(position).getFromdis());
         holder.loc2.setText(mlist.data.get(position).getTodis());
+        holder.ratNum.setText(mlist.data.get(position).getOwnerTotalRate() + "");
+        holder.ratingBar.setRating(mlist.data.get(position).getOwnerRate());
         holder.sendOffer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,6 +135,7 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
+            ratingBar = itemView.findViewById(R.id.rate);
             id = itemView.findViewById(R.id.txt_orderid);
             sendOffer = itemView.findViewById(R.id.send_offer);
             amount = itemView.findViewById(R.id.ed_price);

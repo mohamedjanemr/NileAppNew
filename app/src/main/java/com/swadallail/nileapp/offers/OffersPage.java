@@ -57,8 +57,8 @@ public class OffersPage extends AppCompatActivity {
                     //Log.e("Body" , ""+response.body().data.size());
                     adapter = new OfferAdapter(OffersPage.this , response.body());
                     LinearLayoutManager mLayoutManager = new LinearLayoutManager(OffersPage.this);
-                    mLayoutManager.setReverseLayout(true);
-                    mLayoutManager.setStackFromEnd(true);
+                    /*mLayoutManager.setReverseLayout(true);
+                    mLayoutManager.setStackFromEnd(true);*/
                     binding.recOffers.setLayoutManager(mLayoutManager);
                     binding.recOffers.setAdapter(adapter);
                 }

@@ -20,10 +20,10 @@ android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.swadallail.nileapp"
-        minSdkVersion 20
+        minSdkVersion 21
         targetSdkVersion 29
-        versionCode 19
-        versionName "2.1.3"
+        versionCode 20
+        versionName "2.1.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         useLibrary "org.apache.http.legacy"
         multiDexEnabled true

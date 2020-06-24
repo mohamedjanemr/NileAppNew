@@ -75,8 +75,8 @@ public class DelegeteHome extends AppCompatActivity {
                     Log.e("BodyDelegete", "" + response.body().data.size());
                     adapter = new NewOrdersAdapter(DelegeteHome.this, response.body());
                     LinearLayoutManager mLayoutManager = new LinearLayoutManager(DelegeteHome.this);
-                    mLayoutManager.setReverseLayout(true);
-                    mLayoutManager.setStackFromEnd(true);
+                   /* mLayoutManager.setReverseLayout(true);
+                    mLayoutManager.setStackFromEnd(true);*/
                     binding.recOrders.setLayoutManager(mLayoutManager);
                     binding.recOrders.setAdapter(adapter);
 

@@ -50,14 +50,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
         if (mlist.data.get(position).getStatus().equals("InProgress")){
             if(mlist.data.get(position).getState().equals("Picked")){
                 holder.status.setText("تم استلام الطلب");
-                done = 0 ;
             }else  {
                 holder.status.setText("جارى استلام الطلب");
-                done = 0 ;
             }
-        }else {
+        }else if (mlist.data.get(position).getStatus().equals("Done")){
             holder.status.setText("انتهى");
-            done = 1 ;
         }
 
 
@@ -65,11 +62,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
         if(rule.equals("WebClient")){
             holder.name.setText(mlist.data.get(position).getReprestiveName());
             holder.ratingBar.setRating(mlist.data.get(position).getReprestiveRate());
-            holder.ratNum.setText(""+mlist.data.get(position).getReprestiveRate());
+            holder.ratNum.setText(""+mlist.data.get(position).getReprestiveTotalRate()+"");
         }else{
             holder.name.setText(mlist.data.get(position).getOwnerName());
             holder.ratingBar.setRating(mlist.data.get(position).getOwnerRate());
-            holder.ratNum.setText(""+mlist.data.get(position).getOwnerRate());
+            holder.ratNum.setText(""+mlist.data.get(position).getOwnerTotalRate()+"");
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +84,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
                     Log.e("Phones" , "empty");
                 }
 
-                goToDe.putExtra("enabled" , done);
+                goToDe.putExtra("enabled" , mlist.data.get(position).getStatus());
                 if(rule.equals("WebClient")){
                     goToDe.putExtra("orderOwner" , mlist.data.get(position).getReprestiveName());
                 }else{

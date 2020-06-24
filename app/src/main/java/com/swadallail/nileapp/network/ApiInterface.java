@@ -20,6 +20,7 @@ import com.swadallail.nileapp.data.MessageResponse;
 import com.swadallail.nileapp.data.OfferResponse;
 import com.swadallail.nileapp.data.OrderBody;
 import com.swadallail.nileapp.data.OrderResponse;
+import com.swadallail.nileapp.data.PhoneBody;
 import com.swadallail.nileapp.data.PickedBody;
 import com.swadallail.nileapp.data.RateBody;
 import com.swadallail.nileapp.data.RequestRepreBody;
@@ -75,7 +76,7 @@ public interface ApiInterface {
     Call<MainResponse> requestRepre(@Header("Authorization") String token , @Body RequestRepreBody body);
     @POST("Representive/CurrentLocation")
     Call<MainResponse> CurrentLocation(@Header("Authorization") String token , @Body LocationBody body);
-    @GET("User/ConfirmPhone")
-    Call<MainResponse> ConfirmPhone(@Header("Authorization") String token );
+    @POST("User/ConfirmPhone")
+    Call<MainResponse> ConfirmPhone(@Header("Authorization") String token , @Body PhoneBody body);
 
 }
