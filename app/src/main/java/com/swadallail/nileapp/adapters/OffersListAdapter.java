@@ -62,7 +62,7 @@ public class OffersListAdapter extends RecyclerView.Adapter<OffersListAdapter.My
     @Override
     public void onBindViewHolder(@NonNull OffersListAdapter.MyViewHolder holder, int position) {
         holder.resname.setText(mlist.data.get(position).getReprestiveName());
-        holder.ratenum.setText(mlist.data.get(position).getRate());
+        holder.ratenum.setText(mlist.data.get(position).getTotalRate()+"");
         holder.total.setText(mlist.data.get(position).getTotal());
         holder.ratingBar.setRating(Float.valueOf(mlist.data.get(position).getRate()));
         if(mlist.data.get(position).getImg() != null){

@@ -77,14 +77,6 @@ public class ChatRooms extends AppCompatActivity {
                 binding.recChats.setLayoutManager(new LinearLayoutManager(ChatRooms.this));
                 adapter = new RoomsAdapter(ChatRooms.this ,  response.body().data);
                 binding.recChats.setAdapter(adapter);
-                /*for (int i = 0 ; i < response.body().data.size() ; i++){
-
-                }*/
-
-
-
-                //adapter = new RoomsAdapter(ChatRooms.this ,  response.body().data);
-
                 dialog.dismiss();
             }
 

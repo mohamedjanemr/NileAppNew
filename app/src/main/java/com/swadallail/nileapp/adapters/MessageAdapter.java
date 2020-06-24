@@ -28,6 +28,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
     int isMin;
     View itemView;
 
+
     public MessageAdapter(Context context, ArrayList<MessageViewModel> messages) {
         this.context = context;
         this.messages = messages;
@@ -79,70 +80,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
         return messages.size();
     }
 
-    /*@Override
-    public int getCount() {
-        return messages.size();
-    }
 
-    @Override
-    public Object getItem(int position) {
-        return messages.get(position);
-    }*/
-
-    /*@Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public int getItemCount() {
-        return messages.get(position);
-    }*/
-
-    /*@Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        View rowView = convertView;
-        ViewHolder holder = null;
-        //final MessageViewModel temp = messages.get(position);
-
-        int listViewItemType = getItemViewType(position);
-
-        if (rowView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-            if (listViewItemType == 1) {
-                rowView = inflater.inflate(R.layout.item_message_mine, parent, false);
-            } else if (listViewItemType == 0) {
-                rowView = inflater.inflate(R.layout.item_message_other, parent, false);
-            } else if (isMin == 1) {
-                rowView = inflater.inflate(R.layout.item_message_mine, parent, false);
-            } else if (isMin == 0) {
-                rowView = inflater.inflate(R.layout.item_message_other, parent, false);
-            }
-            holder = new ViewHolder(rowView);
-            rowView.setTag(holder);
-        } else {
-            holder = (ViewHolder) rowView.getTag();
-        }
-
-        *//*try {
-            byte[] decodedString = Base64.decode(temp.avatar.replace("data:image/false;base64,", ""), Base64.DEFAULT);
-            Bitmap avatarBitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            holder.avatar.setImageBitmap(avatarBitmap);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*//*
-        if (!messages.get(position).images.equals("")) {
-            Log.e("image22222" , messages.get(position).images);
-            Picasso.get().load(messages.get(position).images).into(holder.messageimg);
-        }else {
-            holder.messageimg.setVisibility(View.GONE);
-        }
-        holder.from.setText(messages.get(position).from);
-        holder.content.setText(messages.get(position).content);
-        return rowView;
-
-    }*/
 
     public class MyHolder extends RecyclerView.ViewHolder {
         ImageView avatar, messageimg;

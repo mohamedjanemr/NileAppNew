@@ -19,6 +19,16 @@ public class OfferResponse {
     public String rate ;
     @SerializedName("img")
     public String img ;
+    @SerializedName("totalRate")
+    public int totalRate ;
+
+    public int getTotalRate() {
+        return totalRate;
+    }
+
+    public void setTotalRate(int totalRate) {
+        this.totalRate = totalRate;
+    }
 
     public int getOfferId() {
         return offerId;

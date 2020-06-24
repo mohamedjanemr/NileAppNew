@@ -21,6 +21,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
+import com.microsoft.signalr.OnClosedCallback;
 import com.swadallail.nileapp.MainActivity;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.chatroomspage.ChatRooms;
@@ -40,7 +41,7 @@ public class ChatService extends Service implements OnLogout {
     private final IBinder mBinder = new LocalBinder();
     static HubConnection hubConnection;
     Handler handler;
-    String token;
+    //String token;
     static boolean hubStarted = false;
     MainActivity activity;
     Intent restartServiceIntent;
@@ -49,7 +50,7 @@ public class ChatService extends Service implements OnLogout {
     @Override
     public IBinder onBind(Intent intent) {
 
-        token = intent.getExtras().getString("token");
+        String token = intent.getExtras().getString("token");
         Log.e("TokenFromStartHub", token);
         hubStarted = StartHubConnection(token);
         if (!hubStarted) {
@@ -57,28 +58,29 @@ public class ChatService extends Service implements OnLogout {
         } else if (hubStarted) {
             ExitWithMessage("Done");
         }
+        OnConnectionStoped();
         onTaskRemoved(intent);
         return mBinder;
     }
 
     public void getToken(String tokens, String usernames) {
         StartHubConnection(tokens);
-
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
         restartServiceIntent.setPackage(getPackageName());
-
+        String tokend = rootIntent.getStringExtra("token");
         try {
-            if (!token.equals("None")) {
-                Log.e("restart Service", ": restarted");
-                StartHubConnection(token);
-                startService(restartServiceIntent);
-            }
+
+            Log.e("restart Service", ": restarted");
+            StartHubConnection(tokend);
+            startService(restartServiceIntent);
+
         } catch (Exception e) {
             Log.e("Service", ": Stoped");
+            OnConnectionStoped();
         }
 
         super.onTaskRemoved(rootIntent);
@@ -86,8 +88,8 @@ public class ChatService extends Service implements OnLogout {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-
+        super.onStartCommand(intent ,flags , startId);
+        OnConnectionStoped();
         onTaskRemoved(intent);
 
 
@@ -98,10 +100,6 @@ public class ChatService extends Service implements OnLogout {
     private void biludNotification(String body, String title, int type, String refId) {
         Intent intent = new Intent(this, MainActivity.class);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-
-// Creating a pending intent and wrapping our intent
-
         int notificationId = 1;
         String channelId = "channel-01";
         String channelName = "Channel Name";
@@ -124,23 +122,17 @@ public class ChatService extends Service implements OnLogout {
                 .setSound(alarmSound)
                 .setAutoCancel(true)
                 .setVibrate(pattern);
-        switch (type) {
-            case 0:
-                resultIntent = new Intent(this, ChatRooms.class);
-                break;
-            case 1:
-                resultIntent = new Intent(this, DelegeteHome.class);
-                break;
-            case 2:
-                resultIntent = new Intent(this, OffersPage.class);
-                break;
-            case 3:
-                resultIntent = new Intent(this, HistoryOreders.class);
-                break;
-            default:
-                resultIntent = new Intent(this, MainActivity.class);
+        if(type == 0){
+            resultIntent = new Intent(this, ChatRooms.class);
+        }else if(type == 1){
+            resultIntent = new Intent(this, DelegeteHome.class);
+        }else if (type == 2){
+            resultIntent = new Intent(this, OffersPage.class);
+        }else if(type == 3){
+            resultIntent = new Intent(this, HistoryOreders.class);
+        }else {
+            resultIntent = new Intent(this, MainActivity.class);
         }
-
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(MainActivity.class);
         stackBuilder.addNextIntent(resultIntent);
@@ -229,7 +221,18 @@ public class ChatService extends Service implements OnLogout {
         Log.e("totoken", token);
         OnNotificationRecevied();
         OnRecevied();
+
         return true;
+    }
+
+    private void OnConnectionStoped() {
+        hubConnection.onClosed(new OnClosedCallback() {
+            @Override
+            public void invoke(Exception exception) {
+                StartHubConnection(SharedHelper.getKey(getApplicationContext(),"token"));
+                ExitWithMessage("Connection Stoped but Reconnecting");
+            }
+        });
     }
 
     public static class HubTask extends AsyncTask<HubConnection, Void, Void> {
@@ -276,22 +279,24 @@ public class ChatService extends Service implements OnLogout {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Log.e("Qu", "" + message.images);
+                    if (message.isMine == 0) {
+                        Log.e("Qu", "" + message.images);
 //                    message.isMine = message.from.equals(SharedHelper.getKey(getApplicationContext(), "UserName")) ? 1 : 0;
 //                    int mine = message.isMine;
-                    String op = SharedHelper.getKey(getApplicationContext(), "opened");
-                    if (message.images == null) {
-                        message.images = "";
-                        Globals.Messages.add(message);
-                    } else {
-                        Globals.Messages.add(message);
-                    }
+                        String op = SharedHelper.getKey(getApplicationContext(), "opened");
+                        if (message.images == null) {
+                            message.images = "";
+                            Globals.Messages.add(message);
+                        } else {
+                            Globals.Messages.add(message);
+                        }
 
 
-                    if (message.isMine == 0 && op.equals("no")) {
-                        biludNotification(message.content);
+                        if (message.isMine == 0 && op.equals("no")) {
+                            biludNotification(message.content);
+                        }
+                        sendBroadcast(new Intent().setAction("notifyAdapter"));
                     }
-                    sendBroadcast(new Intent().setAction("notifyAdapter"));
                 }
             });
         }, MessageViewModel.class);
@@ -314,5 +319,4 @@ public class ChatService extends Service implements OnLogout {
         Log.i("EXIT", "ondestroy!");
         SharedHelper.putKey(getApplicationContext(), "tokens", "");
     }
-
 }

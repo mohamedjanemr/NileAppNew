@@ -82,6 +82,7 @@ public class ChatActivity extends AppCompatActivity {
     IntentFilter intentFilter;
     int PERMISSION_REQUEST_CODE = 200;
     String encodedImage ;
+    final int mine = 1 ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +136,7 @@ public class ChatActivity extends AppCompatActivity {
                         object.Img = encodedImage;
                     }
                     chatService.Send(object , SharedHelper.getKey(ChatActivity.this ,"token"));
+                   //adapter = new MessageAdapter(this , )
                     encodedImage = null ;
                 }
 

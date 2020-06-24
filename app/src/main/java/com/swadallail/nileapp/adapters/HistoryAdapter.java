@@ -73,6 +73,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
             @Override
             public void onClick(View view) {
                 Intent goToDe = new Intent(con , OrderProgress.class);
+                goToDe.putExtra("state" , mlist.data.get(position).getState());
                 goToDe.putExtra("image" , mlist.data.get(position).getImg());
                 goToDe.putExtra("orderText" , mlist.data.get(position).getDescription());
                 goToDe.putExtra("orderH" , mlist.data.get(position).getHours());

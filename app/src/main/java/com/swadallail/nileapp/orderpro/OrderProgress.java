@@ -48,12 +48,13 @@ public class OrderProgress extends AppCompatActivity {
     Intent getDetails;
     ActivityOrderProgressBinding binding;
     MyClick handlers;
-    String otolat, otolng, ofromlat, ofromlng, oname, oid, ownerId, repid , ownerPhone , reprePhone;
+    String otolat, otolng, ofromlat, ofromlng, oname, oid, ownerId, repid, ownerPhone, reprePhone;
     ProgressDialog dialog;
     int orderID = 0;
     String rule = "";
     private static final int REQUEST_PHONE_CALL = 1;
-    String done;
+    String done, state;
+    int i = 0, j = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +87,7 @@ public class OrderProgress extends AppCompatActivity {
             binding.phoneCall.setVisibility(View.GONE);
             binding.openChat.setVisibility(View.GONE);
         }
+
         binding.openChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,18 +107,18 @@ public class OrderProgress extends AppCompatActivity {
 
                 Intent callIntent = new Intent(Intent.ACTION_CALL);
                 if (rule.equals("WebClient")) {
-                    if(!reprePhone.equals("") && reprePhone != null){
-                        callIntent.setData(Uri.parse("tel:"+reprePhone));//change the number
+                    if (!reprePhone.equals("") && reprePhone != null) {
+                        callIntent.setData(Uri.parse("tel:" + reprePhone));//change the number
                         startActivity(callIntent);
-                    }else {
+                    } else {
                         Toast.makeText(OrderProgress.this, "لا تستطيع التواصل مع المندوب", Toast.LENGTH_SHORT).show();
                     }
 
                 } else {
-                    if(!ownerPhone.equals("") && ownerPhone != null){
-                        callIntent.setData(Uri.parse("tel:"+ownerPhone));//change the number
+                    if (!ownerPhone.equals("") && ownerPhone != null) {
+                        callIntent.setData(Uri.parse("tel:" + ownerPhone));//change the number
                         startActivity(callIntent);
-                    }else {
+                    } else {
                         Toast.makeText(OrderProgress.this, "لا تستطيع التواصل مع العميل", Toast.LENGTH_SHORT).show();
                     }
 
@@ -128,12 +130,13 @@ public class OrderProgress extends AppCompatActivity {
 
     private void phonePer() {
         if (ContextCompat.checkSelfPermission(OrderProgress.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(OrderProgress.this, new String[]{Manifest.permission.CALL_PHONE},REQUEST_PHONE_CALL);
+            ActivityCompat.requestPermissions(OrderProgress.this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PHONE_CALL);
         }
     }
 
     private void setData() {
         getDetails = getIntent();//image
+        state = getDetails.getStringExtra("state");
         done = getDetails.getStringExtra("enabled");
         ownerPhone = getDetails.getStringExtra("ownerPhone");
         reprePhone = getDetails.getStringExtra("reprePhone");
@@ -174,11 +177,28 @@ public class OrderProgress extends AppCompatActivity {
         }
 
         public void picked(View view) {
-            showPickedAlert();
+            if (state.equals("Picked") || i == 1 || done.equals("Done")) {
+                Toast.makeText(OrderProgress.this, "تم الاستلام من قبل", Toast.LENGTH_SHORT).show();
+            } else {
+                showPickedAlert();
+                i = 1 ;
+            }
+
         }
 
         public void sent(View view) {
-            showSentAlert();
+            if (state.equals("Deliverd") || j == 1 || done.equals("Done")){
+                Toast.makeText(OrderProgress.this, "تم التسليم من قبل", Toast.LENGTH_SHORT).show();
+            }else {
+                showSentAlert();
+                j = 1;
+            }
+            /*if (j == 0) {
+
+            } else if (j == 1) {
+                Toast.makeText(OrderProgress.this, "تم التسليم من قبل", Toast.LENGTH_SHORT).show();
+            }*/
+
         }
 
         public void goTo(View view) {
@@ -198,6 +218,7 @@ public class OrderProgress extends AppCompatActivity {
         public void showrateRepre(View view) {
             ratingAlert();
         }
+
     }
 
     private void showSentAlert() {
