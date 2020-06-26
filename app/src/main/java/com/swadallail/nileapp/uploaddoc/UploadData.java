@@ -49,7 +49,7 @@ public class UploadData extends AppCompatActivity {
     ProgressDialog dialog;
     int PERMISSION_REQUEST_CODE = 200;
     Bitmap user_natface, user_natback, user_profile, user_lic;
-    String encodedImagenatFace, encodednatBackground, encodedprofile, encodedlic, idNum, phone, fullname;
+    String encodedImagenatFace , encodednatBackground, encodedprofile, encodedlic, idNum, phone, fullname;
 
 
     @Override
@@ -103,28 +103,28 @@ public class UploadData extends AppCompatActivity {
             user_profile.compress(Bitmap.CompressFormat.JPEG, 50, profile);
             encodedprofile = Base64.encodeToString(profile.toByteArray(), Base64.DEFAULT);
         } else {
-            encodedprofile = null;
+            encodedprofile = "";
         }
         ByteArrayOutputStream lic = new ByteArrayOutputStream();
         if (user_lic != null) {
             user_lic.compress(Bitmap.CompressFormat.JPEG, 50, lic);
             encodedlic = Base64.encodeToString(lic.toByteArray(), Base64.DEFAULT);
         } else {
-            encodedlic = null;
+            encodedlic = "";
         }
         ByteArrayOutputStream natback = new ByteArrayOutputStream();
         if (user_natback != null) {
             user_natback.compress(Bitmap.CompressFormat.JPEG, 50, natback);
             encodednatBackground = Base64.encodeToString(natback.toByteArray(), Base64.DEFAULT);
         } else {
-            encodednatBackground = null;
+            encodednatBackground = "";
         }
         ByteArrayOutputStream natface = new ByteArrayOutputStream();
         if (user_natface != null) {
             user_natface.compress(Bitmap.CompressFormat.JPEG, 50, natface);
             encodedImagenatFace = Base64.encodeToString(natface.toByteArray(), Base64.DEFAULT);
         } else {
-            encodedImagenatFace = null;
+            encodedImagenatFace = "";
         }
         fullname = binding.edName.getText().toString();
         idNum = binding.edNatid.getText().toString();

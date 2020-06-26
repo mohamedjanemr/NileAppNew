@@ -54,7 +54,7 @@ public class OrderProgress extends AppCompatActivity {
     String rule = "";
     private static final int REQUEST_PHONE_CALL = 1;
     String done, state;
-    int i = 0, j = 0;
+    int i = 0, j = 0 , v = 0 ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,7 +216,12 @@ public class OrderProgress extends AppCompatActivity {
         }
 
         public void showrateRepre(View view) {
-            ratingAlert();
+            if(v == 0){
+                ratingAlert();
+            }else{
+                Toast.makeText(OrderProgress.this, "تم تقييم المندوب من قبل", Toast.LENGTH_SHORT).show();
+            }
+
         }
 
     }
@@ -331,7 +336,7 @@ public class OrderProgress extends AppCompatActivity {
             public void onClick(View view) {
                 int rate = (int) rateuser.getRating();
                 if (rate != 0) {
-                    hitRateApi(rate, repid);
+                    hitRateApi(rate, repid );
                     alertDialog3.cancel();
                 } else {
                     Toast.makeText(OrderProgress.this, "رجاء قم بتقييم المندوب", Toast.LENGTH_SHORT).show();
@@ -358,7 +363,7 @@ public class OrderProgress extends AppCompatActivity {
             public void onClick(View view) {
                 int rate = (int) rateuser.getRating();
                 if (rate != 0) {
-                    hitRateApi(rate);
+                    hitRateApi(rate,ownerId , orderID);
                     alertDialog.cancel();
                 } else {
                     Toast.makeText(OrderProgress.this, "رجاء قم بتقيم العميل", Toast.LENGTH_SHORT).show();
@@ -372,7 +377,7 @@ public class OrderProgress extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private void hitRateApi(int rate) {
+    private void hitRateApi(int rate, String userid, int order) {
         dialog = new ProgressDialog(OrderProgress.this);
         dialog.setMessage(getApplicationContext().getResources().getString(R.string.the_data_is_loaded));
         dialog.show();
@@ -383,7 +388,7 @@ public class OrderProgress extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
-        RateBody body = new RateBody(rate, ownerId);
+        RateBody body = new RateBody(rate, ownerId , orderID);
         String token = "Bearer " + SharedHelper.getKey(OrderProgress.this, "token");
         Call<MainResponse> call = userclient.rateUser(token, body);
         call.enqueue(new Callback<MainResponse>() {
@@ -421,7 +426,7 @@ public class OrderProgress extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
-        RateBody body = new RateBody(rate, repreid);
+        RateBody body = new RateBody(rate, repid , orderID);
         String token = "Bearer " + SharedHelper.getKey(OrderProgress.this, "token");
         Call<MainResponse> call = userclient.rateUser(token, body);
         call.enqueue(new Callback<MainResponse>() {
@@ -430,6 +435,7 @@ public class OrderProgress extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
                         if (response.body().success) {
+                            v = 1 ;
                             Toast.makeText(OrderProgress.this, "تم التقيم ", Toast.LENGTH_LONG).show();
                             dialog.dismiss();
                         } else {

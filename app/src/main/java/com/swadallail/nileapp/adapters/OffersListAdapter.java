@@ -44,6 +44,7 @@ public class OffersListAdapter extends RecyclerView.Adapter<OffersListAdapter.My
     ProgressDialog dialog;
     AlertDialog alertDialog ;
     String owner ;
+    int accepted = 0 ;
 
     public OffersListAdapter(Context con, Main<OfferResponse> mlist , String ownerId) {
         this.con = con;
@@ -61,6 +62,7 @@ public class OffersListAdapter extends RecyclerView.Adapter<OffersListAdapter.My
 
     @Override
     public void onBindViewHolder(@NonNull OffersListAdapter.MyViewHolder holder, int position) {
+        SharedHelper.putKey(con , "acc" ,"");
         holder.resname.setText(mlist.data.get(position).getReprestiveName());
         holder.ratenum.setText(mlist.data.get(position).getTotalRate()+"");
         holder.total.setText(mlist.data.get(position).getTotal());
@@ -74,7 +76,12 @@ public class OffersListAdapter extends RecyclerView.Adapter<OffersListAdapter.My
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ShowDialog(position , v , mlist.data.get(position).getOfferId() ,mlist.data.get(position).getOrderId());
+                if(accepted == 0 ){
+                    ShowDialog(position , v , mlist.data.get(position).getOfferId() ,mlist.data.get(position).getOrderId());
+                }else{
+                    Toast.makeText(con, "تم قبول العرض من قبل", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
@@ -127,9 +134,13 @@ public class OffersListAdapter extends RecyclerView.Adapter<OffersListAdapter.My
                     Log.e("Success" , response.body().success+"");
                     if (response.body().data != null){
                         if(response.body().data.getOfferId() > 0){
-                            Toast.makeText(con, "تم قبول العرض", Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(con, "لقد قمت بقبول العرض من قبل", Toast.LENGTH_SHORT).show();
+                            if(response.body().success){
+                                Toast.makeText(con, "تم قبول العرض", Toast.LENGTH_SHORT).show();
+                                accepted = 1 ;
+                                SharedHelper.putKey(con , "acc" , "done");
+                            }else {
+                                Toast.makeText(con, "لقد قمت بقبول العرض من قبل", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }else{
                         Toast.makeText(con, "لقد قمت بقبول العرض من قبل", Toast.LENGTH_SHORT).show();

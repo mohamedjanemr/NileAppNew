@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     LatLng center, latLng, movelatlng;
     Marker mCurrLocation, locationMarker;
     private Circle mCircle;
-    ChatService chatService , getChatService;
+    ChatService chatService, getChatService;
     Button call, move, chat;
     boolean mBound = false;
     int flagInfo = 0; //فلاق عرض إظهار النافذه التي بالأسف كامل أو إخفائها كامله أثناء كتابة البحث
@@ -844,9 +844,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onClick(View view) {
                     //SharedHelper.putKey(MainActivity.this, "token", "");
-                    getChatService.getToken( "null","null");
-                    stopService(intent);
-                    unbindService(mConnection);
+                    getChatService.getToken("null", "null");
+                    intent = new Intent(MainActivity.this, ChatService.class);
+                    intent.putExtra("token", "");
+                    bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
                     SharedHelper.putKey(MainActivity.this, "UserName", "NONE");
                     SharedHelper.putKey(MainActivity.this, "name", "NONE");
                     SharedHelper.putKey(MainActivity.this, "picUrl", "NONE");//isLoged
@@ -855,9 +856,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Globals.Messages.clear();
                     SharedHelper.clearSharedPreferences(MainActivity.this);
                     alertDialog.dismiss();
-
-
-                    startActivity(new Intent(MainActivity.this , LoginAuthActivity.class));
+                    startActivity(new Intent(MainActivity.this, LoginAuthActivity.class));
                     finish();
                 }
             });

@@ -49,14 +49,26 @@ public class ChatService extends Service implements OnLogout {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-
         String token = intent.getExtras().getString("token");
         Log.e("TokenFromStartHub", token);
-        hubStarted = StartHubConnection(token);
-        if (!hubStarted) {
-            ExitWithMessage("Chat Service failed to start!");
-        } else if (hubStarted) {
-            ExitWithMessage("Done");
+        if(!token.equals(SharedHelper.getKey(getApplicationContext(),"token"))){
+            hubStarted = false ;
+            hubStarted = StartHubConnection(token);
+            if (!hubStarted) {
+                ExitWithMessage("Chat Service failed to start!");
+            } else if (hubStarted) {
+                ExitWithMessage("Done");
+            }
+        }else {
+            hubStarted = StartHubConnection(token);
+            if (!hubStarted) {
+                ExitWithMessage("Chat Service failed to start!");
+            } else if (hubStarted) {
+                ExitWithMessage("Done");
+            }
+        }
+        if(token.equals("")){
+            hubConnection.stop();
         }
         OnConnectionStoped();
         onTaskRemoved(intent);
@@ -317,6 +329,6 @@ public class ChatService extends Service implements OnLogout {
     public void onDestroy() {
         super.onDestroy();
         Log.i("EXIT", "ondestroy!");
-        SharedHelper.putKey(getApplicationContext(), "tokens", "");
+        SharedHelper.putKey(getApplicationContext(), "token", "");
     }
 }

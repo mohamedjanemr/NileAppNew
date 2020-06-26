@@ -2,6 +2,9 @@ package com.swadallail.nileapp.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +21,7 @@ import com.squareup.picasso.Picasso;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.data.MessageResponse;
 import com.swadallail.nileapp.modelviews.MessageViewModel;
+import com.swadallail.nileapp.modelviews.SendData;
 
 import java.util.ArrayList;
 
@@ -41,7 +45,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
     }
 
 
-
     @NonNull
     @Override
     public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -61,14 +64,28 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
         if (!messages.get(position).images.equals("")) {
-            Log.e("image22222" , messages.get(position).images);
-            Picasso.get().load(messages.get(position).images).into(holder.messageimg);
-        }else {
+            char first = messages.get(position).images.charAt(0);
+            if (first == 'h') {
+                Log.e("image22222", messages.get(position).images);
+                Picasso.get().load(messages.get(position).images).into(holder.messageimg);
+            }else {
+                byte[] decodedString = Base64.decode(messages.get(position).images, Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                holder.messageimg.setImageBitmap(decodedByte);
+            }
+        } else {
             holder.messageimg.setVisibility(View.GONE);
         }
         holder.from.setText(messages.get(position).from);
         holder.content.setText(messages.get(position).content);
+        /*if (!messages.get(position).imagemine.equals("")) {
+
+        } else {
+            holder.messageimg.setVisibility(View.GONE);
+        }*/
+
     }
+
 
     @Override
     public int getItemViewType(int position) {
@@ -79,7 +96,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
     public int getItemCount() {
         return messages.size();
     }
-
 
 
     public class MyHolder extends RecyclerView.ViewHolder {

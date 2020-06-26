@@ -155,9 +155,9 @@ public class LoginAuthActivity extends AppCompatActivity {
                 call.enqueue(new Callback<MainResponse<UserResponse<UserDataResponse>>>() {
                     @Override
                     public void onResponse(Call<MainResponse<UserResponse<UserDataResponse>>> call, Response<MainResponse<UserResponse<UserDataResponse>>> response) {
+                        dialog.dismiss();
                         if (response.body() != null) {
                             Log.e("StatusCode", "" + response.body().statusCode);
-                            dialog.dismiss();
                             if (response.body().success) {
                                 Log.e("SAVED", "YES");
                                 SharedHelper.putKey(LoginAuthActivity.this, "mailConfirm", "" + response.body().data.user.getMailConfirmed());

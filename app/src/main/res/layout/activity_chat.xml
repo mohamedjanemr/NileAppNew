@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="@drawable/bordered_message_other"
-            android:hint="What's on your mind?"
+            android:hint="نص الرسالة..."
             android:layout_weight="1"
             android:paddingLeft="10dp"
             android:paddingRight="10dp" />
@@ -45,7 +45,7 @@
             android:layout_height="60dp"
             android:scaleType="centerCrop"
             android:layout_alignParentRight="true"
-            android:src="@drawable/send"
+            android:src="@drawable/ic_send_disable"
             android:padding="15dp"
             android:layout_centerVertical="true"
             android:background="#eee"

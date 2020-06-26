@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -80,10 +81,16 @@ public class RegisterAuthActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<MainResponse<UserRegisterResponse>> call, Response<MainResponse<UserRegisterResponse>> response) {
                         if (response.body() != null) {
-                            Toast.makeText(RegisterAuthActivity.this, "تم انشاء الحساب بنجاح", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(RegisterAuthActivity.this, LoginAuthActivity.class));
-                            finish();
-                            dialog.dismiss();
+                            if(response.body().success){
+                                Log.e("Su" , response.body().success+"");
+                                Toast.makeText(RegisterAuthActivity.this, "تم انشاء الحساب بنجاح", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(RegisterAuthActivity.this, LoginAuthActivity.class));
+                                finish();
+                                dialog.dismiss();
+                            }else {
+
+                            }
+
                         }
 
 

@@ -25,6 +25,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -51,6 +53,7 @@ import com.swadallail.nileapp.helpers.Globals;
 import com.swadallail.nileapp.helpers.SharedHelper;
 import com.swadallail.nileapp.loginauth.LoginAuthActivity;
 import com.swadallail.nileapp.modelviews.MessageViewModel;
+import com.swadallail.nileapp.modelviews.SendData;
 import com.swadallail.nileapp.network.ApiInterface;
 import com.swadallail.nileapp.uploaddoc.UploadData;
 
@@ -81,8 +84,8 @@ public class ChatActivity extends AppCompatActivity {
     RecyclerView gridView;
     IntentFilter intentFilter;
     int PERMISSION_REQUEST_CODE = 200;
-    String encodedImage ;
-    final int mine = 1 ;
+    String encodedImage = "";
+    ImageButton sendButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +93,7 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
         Intent intent = new Intent(this, ChatService.class);
-        intent.putExtra("token",SharedHelper.getKey(ChatActivity.this, "token"));
+        intent.putExtra("token", SharedHelper.getKey(ChatActivity.this, "token"));
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         //chatService.getToken(ChatActivity.this, SharedHelper.getKey(ChatActivity.this, "token"), "");
         Intent inGet = getIntent();
@@ -105,10 +108,10 @@ public class ChatActivity extends AppCompatActivity {
         Log.e("userid", user_id + "");
         Log.e("chatid", finalchatid + "");
         getChatMessages(user_id, finalchatid);
-        gridView =  findViewById(R.id.gvMessages);
+        gridView = findViewById(R.id.gvMessages);
 
         //gridView.setTranscriptMode(GridView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-        ImageButton sendButton = findViewById(R.id.bSend);
+        sendButton = findViewById(R.id.bSend);
         ImageButton sendImage = findViewById(R.id.bimgSend);
         sendImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,6 +127,23 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String message = editText.getText().toString();
+                editText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        sendButton.setImageDrawable(getDrawable(R.drawable.ic_send_blue));
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        sendButton.setImageDrawable(getDrawable(R.drawable.ic_send_blue));
+                    }
+                });
+                ArrayList<MessageViewModel> datasend = new ArrayList<>();
                 if (message.isEmpty() && encodedImage == null) {
                     Toast.makeText(ChatActivity.this, "رجاء قم بكتابة الرسالة او قم بأدراج صورة", Toast.LENGTH_SHORT).show();
                 } else {
@@ -131,13 +151,39 @@ public class ChatActivity extends AppCompatActivity {
                     CustomMessage object = new CustomMessage();
                     object.Message = message;
                     object.ChatId = finalchatid;
+                    //SendData data = new SendData();
+                    MessageViewModel model = new MessageViewModel();
+                    model.isMine = 1;
+                    model.content = message;
+                    model.from = SharedHelper.getKey(ChatActivity.this, "UserName");
 
-                    if (encodedImage != null){
+
+                    if (!encodedImage.equals("")) {
                         object.Img = encodedImage;
+                        model.images = encodedImage;
+                    } else {
+                        object.Img = "";
+                        model.images = "";
                     }
-                    chatService.Send(object , SharedHelper.getKey(ChatActivity.this ,"token"));
-                   //adapter = new MessageAdapter(this , )
-                    encodedImage = null ;
+                    Globals.Messages.add(model);
+                    adapter = new MessageAdapter(ChatActivity.this, Globals.Messages, 1);
+                    gridView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
+                    gridView.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                    gridView.scrollToPosition(adapter.getItemCount() - 1);
+                    //scrollToBottom();
+                    adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                        @Override
+                        public void onChanged() {
+                            super.onChanged();
+                            gridView.scrollToPosition(adapter.getItemCount() - 1);
+                            //scrollToBottom();
+                        }
+                    });
+                    chatService.Send(object, SharedHelper.getKey(ChatActivity.this, "token"));
+                    sendButton.setImageDrawable(getDrawable(R.drawable.ic_send_disable));
+
+                    encodedImage = "";
                 }
 
 
@@ -209,7 +255,7 @@ public class ChatActivity extends AppCompatActivity {
                             public void onChanged() {
                                 super.onChanged();
                                 gridView.scrollToPosition(adapter.getItemCount() - 1);
-                              //  scrollToBottom();
+                                //  scrollToBottom();
                             }
                         });
                     } else {
@@ -242,13 +288,14 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-
-        if (mBound) {
+        if(mBound){
             unbindService(mConnection);
             unregisterReceiver(myReceiver);
             mBound = false;
         }
-        Globals.Messages.clear();
+
+        Log.e("OnStop::" ,"chat Stoped");
+        //Globals.Messages.clear();
         super.onStop();
 
     }
@@ -264,6 +311,9 @@ public class ChatActivity extends AppCompatActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            Intent intent = new Intent(ChatActivity.this, ChatService.class);
+            intent.putExtra("token", SharedHelper.getKey(ChatActivity.this, "token"));
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
             mBound = false;
         }
     };
@@ -290,7 +340,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         SharedHelper.putKey(ChatActivity.this, "opened", "no");
-        Globals.Messages.clear();
+        //Globals.Messages.clear();
 
         super.onDestroy();
     }
@@ -300,6 +350,7 @@ public class ChatActivity extends AppCompatActivity {
         SharedHelper.putKey(ChatActivity.this, "opened", "no");
         super.onPause();
     }
+
     private void showPictureDialognatface(int gallery, int Cam) {
         AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
         pictureDialog.setTitle("اختر الصورة من");
@@ -332,6 +383,7 @@ public class ChatActivity extends AppCompatActivity {
                 });
         pictureDialog.show();
     }
+
     private boolean checkPermissiongallary() {
         int result2 = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         return result2 == PackageManager.PERMISSION_GRANTED;
@@ -352,6 +404,7 @@ public class ChatActivity extends AppCompatActivity {
         Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, cam);
     }
+
     private void requestPermissiongallary() {
 
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
@@ -363,6 +416,7 @@ public class ChatActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
 
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -380,11 +434,12 @@ public class ChatActivity extends AppCompatActivity {
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 50, natface);
                         encodedImage = Base64.encodeToString(natface.toByteArray(), Base64.DEFAULT);
                         Toast.makeText(ChatActivity.this, "تم اختيار الصورة", Toast.LENGTH_SHORT).show();
-
+                        sendButton.setImageDrawable(getDrawable(R.drawable.ic_send_blue));
 
                     } catch (IOException e) {
                         e.printStackTrace();
                         Toast.makeText(ChatActivity.this, "خطأ فى رفع الصورة!", Toast.LENGTH_SHORT).show();
+                        sendButton.setImageDrawable(getDrawable(R.drawable.ic_send_disable));
                     }
                 }
                 break;
@@ -394,8 +449,10 @@ public class ChatActivity extends AppCompatActivity {
                     Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
                     thumbnail.compress(Bitmap.CompressFormat.JPEG, 50, natface);
                     //encodedImage = Base64.encodeToString(natface.toByteArray(), Base64.DEFAULT);
-
                     Toast.makeText(ChatActivity.this, "تم اختيار الصورة", Toast.LENGTH_SHORT).show();
+                    sendButton.setImageDrawable(getDrawable(R.drawable.ic_send_blue));
+                } else {
+                    sendButton.setImageDrawable(getDrawable(R.drawable.ic_send_disable));
                 }
                 break;
         }
