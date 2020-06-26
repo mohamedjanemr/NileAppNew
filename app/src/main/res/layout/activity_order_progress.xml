@@ -29,6 +29,7 @@
                     android:layout_height="wrap_content"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ad"
+                    android:layout_marginTop="10dp"
                     android:layout_gravity="center"
                     android:id="@+id/img_order"
                     />

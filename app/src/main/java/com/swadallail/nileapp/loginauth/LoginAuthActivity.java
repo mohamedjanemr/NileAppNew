@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -33,7 +34,9 @@ import com.facebook.login.LoginResult;
 import com.swadallail.nileapp.AuthPhone;
 import com.swadallail.nileapp.MainActivity;
 import com.swadallail.nileapp.R;
+import com.swadallail.nileapp.Services.ChatNewService;
 import com.swadallail.nileapp.Services.ChatService;
+import com.swadallail.nileapp.Services.ReceiverSensor;
 import com.swadallail.nileapp.chatpage.ChatActivity;
 import com.swadallail.nileapp.data.FacebookToken;
 import com.swadallail.nileapp.data.MainResponse;
@@ -59,27 +62,42 @@ public class LoginAuthActivity extends AppCompatActivity {
     ProgressDialog dialog;
     MyClick handlers;
     boolean mBound = false;
-    ChatService chatService;
+    ChatNewService chatService;
     CallbackManager callbackManager;
     private static final String EMAIL = "email";
     Profile profile;
-    Intent intent ,goo;
+    Intent intent, goo;
     Intent open;
     String email, pass;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    CheckBox check ;
+    CheckBox check;
+    Intent chatNewService;
+    private ReceiverSensor sensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login_auth);
-        chatService = new ChatService();
+        if (SharedHelper.getKey(this, "isLoged").equals("yes")) {
+            /*sensor = new ReceiverSensor();
+            chatNewService = new Intent(this , ChatNewService.class);
+            chatNewService.putExtra("Token" , SharedHelper.getKey(this , "token"));
+            if (!isMyServiceRunning(sensor.getClass())) {
+                Log.e("FromLogin" , "Service Started");
+                startService(chatNewService);
+            }*/
+            goo = new Intent(LoginAuthActivity.this, MainActivity.class);
+            startActivity(goo);
+            finish();
+        }
+
+        //chatService = new ChatService();
         check = findViewById(R.id.ch_rememberme);
-        intent = new Intent(LoginAuthActivity.this, ChatService.class);
+        //intent = new Intent(LoginAuthActivity.this, ChatService.class);
         checkLocationPermission();
         handlers = new MyClick(this);
         binding.setHandlers(handlers);
-        if (SharedHelper.getKey(this, "isLoged").equals("yes")) {
+        /*if (SharedHelper.getKey(this, "isLoged").equals("yes")) {
             intent.putExtra("token",SharedHelper.getKey(LoginAuthActivity.this , "token"));
             Log.e("TOKENEE" ,SharedHelper.getKey(LoginAuthActivity.this , "token") );
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -87,7 +105,7 @@ public class LoginAuthActivity extends AppCompatActivity {
             goo = new Intent(LoginAuthActivity.this, MainActivity.class);
             startActivity(goo);
             finish();
-        }
+        }*/
         Log.e("Loged", SharedHelper.getKey(this, "isLoged"));
 
 
@@ -166,8 +184,8 @@ public class LoginAuthActivity extends AppCompatActivity {
                                 SharedHelper.putKey(LoginAuthActivity.this, "UserName", response.body().data.user.getUsername());
                                 SharedHelper.putKey(LoginAuthActivity.this, "role", response.body().data.user.getRole());
                                 SharedHelper.putKey(LoginAuthActivity.this, "token", response.body().data.token);
-                                chatService.getToken( response.body().data.token, response.body().data.user.getUsername());
-                                Log.e("TokenFromLogin" , response.body().data.token);
+                                //chatService.getToken( response.body().data.token, response.body().data.user.getUsername());
+                                Log.e("TokenFromLogin", response.body().data.token);
                                 Log.e("UserNameAfter", SharedHelper.getKey(LoginAuthActivity.this, "UserName"));
                                 SharedHelper.putKey(LoginAuthActivity.this, "name", response.body().data.user.getFullName());
                                 SharedHelper.putKey(LoginAuthActivity.this, "picUrl", response.body().data.user.getPic());
@@ -176,9 +194,17 @@ public class LoginAuthActivity extends AppCompatActivity {
                                 } else {
                                     SharedHelper.putKey(LoginAuthActivity.this, "isLoged", "no");
                                 }
+                                /*chatNewService = new Intent(LoginAuthActivity.this , ChatNewService.class);
+                                chatNewService.putExtra("Token" ,  response.body().data.token);
+                                sensor = new ReceiverSensor();
+                                if (!isMyServiceRunning(sensor.getClass())) {
+                                    Log.e("FromLogin" , "Service Started");
+                                    startService(chatNewService);
+                                }*/
+                                binserviceing(response.body().data.token);
                                 dialog.dismiss();
-                                intent.putExtra("token",response.body().data.token);
-                                bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+                                //intent.putExtra("token",response.body().data.token);
+                                //bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
                                 startActivity(open);
                                 LoginAuthActivity.this.finish();
                             } else {
@@ -188,6 +214,7 @@ public class LoginAuthActivity extends AppCompatActivity {
                             }
                         }
                     }
+
 
                     @Override
                     public void onFailure(Call<MainResponse<UserResponse<UserDataResponse>>> call, Throwable t) {
@@ -205,11 +232,9 @@ public class LoginAuthActivity extends AppCompatActivity {
         }
 
 
-
         public void googlelogin(View view) {
 
         }
-
 
 
         public void forgetpassword(View view) {
@@ -218,6 +243,15 @@ public class LoginAuthActivity extends AppCompatActivity {
 
     }
 
+    private void binserviceing(String token) {
+        Intent intent = null;
+        intent = new Intent(this, ChatNewService.class);
+        // Create a new Messenger for the communication back
+        // From the Service to the Activity
+        intent.putExtra("Token", token);
+
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
 
     private void loginWithToken(String token) {
         dialog = new ProgressDialog(LoginAuthActivity.this);
@@ -255,8 +289,14 @@ public class LoginAuthActivity extends AppCompatActivity {
                         SharedHelper.putKey(LoginAuthActivity.this, "name", response.body().data.user.getFullName());
                         SharedHelper.putKey(LoginAuthActivity.this, "picUrl", response.body().data.user.getPic());
 //                        Intent intent = new Intent(LoginAuthActivity.this, ChatService.class);
-                        intent.putExtra("token",response.body().data.token);
-                        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+                        //intent.putExtra("token",response.body().data.token);
+                        //bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+                        /*chatNewService = new Intent(LoginAuthActivity.this , ChatNewService.class);
+                        chatNewService.putExtra("Token" ,  response.body().data.token);
+                        if (!isMyServiceRunning(sensor.getClass())) {
+                            Log.e("FromLogin" , "Service Started");
+                            startService(chatNewService);
+                        }*/
                         startActivity(new Intent(LoginAuthActivity.this, MainActivity.class));
                     }
                     dialog.dismiss();
@@ -314,8 +354,8 @@ public class LoginAuthActivity extends AppCompatActivity {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-//            ChatService.LocalBinder binder = (ChatService.LocalBinder) service;
-//            chatService = binder.getService();
+            ChatNewService.LocalBinder binder = (ChatNewService.LocalBinder) service;
+            chatService = binder.getService();
             mBound = true;
 
 
@@ -326,6 +366,7 @@ public class LoginAuthActivity extends AppCompatActivity {
             mBound = false;
         }
     };
+
     public boolean checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -365,6 +406,7 @@ public class LoginAuthActivity extends AppCompatActivity {
             return true;
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -394,4 +436,15 @@ public class LoginAuthActivity extends AppCompatActivity {
 
         }
     }
+    /*private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.e ("isMyServiceRunning?", true+"");
+                return true;
+            }
+        }
+        Log.e ("isMyServiceRunning?", false+"");
+        return false;
+    }*/
 }

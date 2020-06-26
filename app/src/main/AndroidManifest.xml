@@ -90,7 +90,14 @@
             android:exported="false" />
 
         <activity android:name=".chatpage.ChatActivity" />
-
+        <service android:name=".Services.ChatNewService"
+            android:enabled="true"
+            />
+        <receiver android:name=".Services.ReceiverSensor"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped"
+            />
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />

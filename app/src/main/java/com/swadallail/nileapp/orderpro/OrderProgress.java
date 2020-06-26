@@ -55,6 +55,7 @@ public class OrderProgress extends AppCompatActivity {
     private static final int REQUEST_PHONE_CALL = 1;
     String done, state;
     int i = 0, j = 0 , v = 0 ;
+    String img;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +65,6 @@ public class OrderProgress extends AppCompatActivity {
         binding.setHandlers(handlers);
         phonePer();
         rule = SharedHelper.getKey(this, "role");
-
 
         if (rule.equals("WebClient")) {
             binding.btnRec.setVisibility(View.GONE);
@@ -140,7 +140,7 @@ public class OrderProgress extends AppCompatActivity {
         done = getDetails.getStringExtra("enabled");
         ownerPhone = getDetails.getStringExtra("ownerPhone");
         reprePhone = getDetails.getStringExtra("reprePhone");
-        String img = getDetails.getStringExtra("image");
+        img = getDetails.getStringExtra("image");
         String otxt = getDetails.getStringExtra("orderText");
         int oh = getDetails.getIntExtra("orderH", 0);
         String addfrom = getDetails.getStringExtra("orderFrom");
@@ -159,6 +159,7 @@ public class OrderProgress extends AppCompatActivity {
         binding.orderAto.setText(addto);
         binding.orderOwner.setText(oname);
         binding.orderH.setText(oh + "ساعة");
+
         if (img == null) {
             binding.imgOrder.setImageResource(R.drawable.nileapp);
         } else {
@@ -246,6 +247,7 @@ public class OrderProgress extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 alertDialog.cancel();
+                j = 0 ;
             }
         });
         alertDialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
@@ -272,6 +274,7 @@ public class OrderProgress extends AppCompatActivity {
         no.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                i = 0 ;
                 alertDialog.cancel();
             }
         });

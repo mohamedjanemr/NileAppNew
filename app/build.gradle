@@ -22,8 +22,8 @@ android {
         applicationId "com.swadallail.nileapp"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 22
-        versionName "2.1.7"
+        versionCode 23
+        versionName "2.1.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         useLibrary "org.apache.http.legacy"
         multiDexEnabled true

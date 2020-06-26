@@ -42,6 +42,7 @@ import android.widget.Toast;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
 import com.swadallail.nileapp.R;
+import com.swadallail.nileapp.Services.ChatNewService;
 import com.swadallail.nileapp.Services.ChatService;
 import com.swadallail.nileapp.adapters.MessageAdapter;
 import com.swadallail.nileapp.data.ChatResponse;
@@ -73,7 +74,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ChatActivity extends AppCompatActivity {
-    ChatService chatService;
+    ChatNewService chatService;
     boolean mBound = false;
     MyReceiver myReceiver;
     MessageAdapter adapter;
@@ -91,10 +92,8 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
-        Intent intent = new Intent(this, ChatService.class);
-        intent.putExtra("token", SharedHelper.getKey(ChatActivity.this, "token"));
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        //chatService = new ChatNewService();
+        binserviceing(SharedHelper.getKey(ChatActivity.this, "token"));
         //chatService.getToken(ChatActivity.this, SharedHelper.getKey(ChatActivity.this, "token"), "");
         Intent inGet = getIntent();
         user_id = inGet.getStringExtra("shopId");
@@ -196,7 +195,15 @@ public class ChatActivity extends AppCompatActivity {
 //
 
     }
+    private void binserviceing(String token) {
+        Intent intent = null;
+        intent = new Intent(this, ChatNewService.class);
+        // Create a new Messenger for the communication back
+        // From the Service to the Activity
+        intent.putExtra("Token", token);
 
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
     private void getChatMessages(String user_id, int chatId) {
         dialog = new ProgressDialog(ChatActivity.this);
         dialog.setMessage(getApplicationContext().getResources().getString(R.string.the_data_is_loaded));
@@ -286,7 +293,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    @Override
+    /*@Override
     protected void onStop() {
         if(mBound){
             unbindService(mConnection);
@@ -298,22 +305,19 @@ public class ChatActivity extends AppCompatActivity {
         //Globals.Messages.clear();
         super.onStop();
 
-    }
+    }*/
 
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            ChatService.LocalBinder binder = (ChatService.LocalBinder) service;
+            ChatNewService.LocalBinder binder = (ChatNewService.LocalBinder) service;
             chatService = binder.getService();
             mBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            Intent intent = new Intent(ChatActivity.this, ChatService.class);
-            intent.putExtra("token", SharedHelper.getKey(ChatActivity.this, "token"));
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
             mBound = false;
         }
     };

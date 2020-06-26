@@ -59,7 +59,8 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
         holder.order.setText(mlist.data.get(position).getDescription());
         holder.hours.setText("" + mlist.data.get(position).getHours());
         holder.name.setText("" + mlist.data.get(position).getOwnerName());
-        holder.hours.setText("" + mlist.data.get(position).getHours());
+       // holder.hours.setText("" + mlist.data.get(position).getHours());
+        holder.date.setText(mlist.data.get(position).getOrderDate());
         //holder.hours.setText("" + mlist.data.get(position).getHours());
         holder.id.setText(mlist.data.get(position).getOrderId() + "");
         holder.loc1.setText(mlist.data.get(position).getFromdis());
@@ -128,13 +129,14 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView order, loc1, loc2, hours, name, ratNum, id;
+        TextView order, loc1, loc2, hours, name, ratNum, id , date;
         RatingBar ratingBar;
         EditText amount;
         Button sendOffer;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
+            date = itemView.findViewById(R.id.orderDate);
             ratingBar = itemView.findViewById(R.id.rate);
             id = itemView.findViewById(R.id.txt_orderid);
             sendOffer = itemView.findViewById(R.id.send_offer);

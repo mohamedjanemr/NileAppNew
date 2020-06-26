@@ -94,6 +94,7 @@ import com.swadallail.nileapp.SaveSharedPreference.SaveSharedPreferenceCity;
 import com.swadallail.nileapp.SaveSharedPreference.SaveSharedPreferenceCityId;
 import com.swadallail.nileapp.SaveSharedPreference.SaveSharedPreferenceName;
 import com.swadallail.nileapp.SaveSharedPreference.SaveSharedPreferencePhone;
+import com.swadallail.nileapp.Services.ChatNewService;
 import com.swadallail.nileapp.Services.ChatService;
 import com.swadallail.nileapp.Services.OnLogout;
 import com.swadallail.nileapp.api.model.Cities;
@@ -238,15 +239,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         getChatService = new ChatService();
         mapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        intent = new Intent(this, ChatService.class);
+        //intent = new Intent(this, ChatService.class);
         //intent.putExtra("token", SharedHelper.getKey(MainActivity.this, "token"));
 
-        String to = SharedHelper.getKey(MainActivity.this, "token");
+        /*String to = SharedHelper.getKey(MainActivity.this, "token");
         Log.e("TokenFromStartAc", to);
         if (!to.isEmpty()) {
             intent.putExtra("token", to);
-        }
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        }*/
+        //bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         call = (Button) findViewById(R.id.btn_call);
         order = findViewById(R.id.btn_order);
         move = (Button) findViewById(R.id.btn_move);
@@ -844,10 +845,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onClick(View view) {
                     //SharedHelper.putKey(MainActivity.this, "token", "");
-                    getChatService.getToken("null", "null");
-                    intent = new Intent(MainActivity.this, ChatService.class);
+                   //getChatService.getToken("null", "null");
+                    /*intent = new Intent(MainActivity.this, ChatService.class);
                     intent.putExtra("token", "");
-                    bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+                    bindService(intent, mConnection, Context.BIND_AUTO_CREATE);*/
+                    stopService(new Intent(MainActivity.this , ChatNewService.class));
                     SharedHelper.putKey(MainActivity.this, "UserName", "NONE");
                     SharedHelper.putKey(MainActivity.this, "name", "NONE");
                     SharedHelper.putKey(MainActivity.this, "picUrl", "NONE");//isLoged
@@ -2246,7 +2248,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**/
-    private ServiceConnection mConnection = new ServiceConnection() {
+    /*private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -2259,6 +2261,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
         }
-    };
+    };*/
 
 }

@@ -41,6 +41,16 @@ public class GetNewOrdersData {
     public float ownerRate ;
     @SerializedName("ownerTotalRate")
     public int ownerTotalRate ;
+    @SerializedName("orderDate")
+    public String orderDate ;
+
+    public String getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(String orderDate) {
+        this.orderDate = orderDate;
+    }
 
     public float getOwnerRate() {
         return ownerRate;
