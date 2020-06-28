@@ -82,7 +82,6 @@ public class OrderProgress extends AppCompatActivity {
         if (!done.equals("Done")) {
             binding.phoneCall.setVisibility(View.VISIBLE);
             binding.openChat.setVisibility(View.VISIBLE);
-
         } else {
             binding.phoneCall.setVisibility(View.GONE);
             binding.openChat.setVisibility(View.GONE);
@@ -305,6 +304,8 @@ public class OrderProgress extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
                         if (response.body().success) {
+                            binding.phoneCall.setVisibility(View.GONE);
+                            binding.openChat.setVisibility(View.GONE);
                             Toast.makeText(OrderProgress.this, "تم تسليم الطلب", Toast.LENGTH_LONG).show();
                             showRatingAlert();
                             dialog.dismiss();
