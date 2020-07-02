@@ -28,6 +28,12 @@ import com.swadallail.nileapp.delegete.DelegeteHome;
 import com.swadallail.nileapp.helpers.SharedHelper;
 import com.swadallail.nileapp.network.ApiInterface;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -56,11 +62,14 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        if (mlist.data.get(position).getOrderDate() != null) {
+            holder.date.setText(convertUtc2Local(mlist.data.get(position).getOrderDate()));
+        }
         holder.order.setText(mlist.data.get(position).getDescription());
         holder.hours.setText("" + mlist.data.get(position).getHours());
         holder.name.setText("" + mlist.data.get(position).getOwnerName());
-       // holder.hours.setText("" + mlist.data.get(position).getHours());
-        holder.date.setText(mlist.data.get(position).getOrderDate());
+        // holder.hours.setText("" + mlist.data.get(position).getHours());
+        //holder.date.setText(mlist.data.get(position).getOrderDate());
         //holder.hours.setText("" + mlist.data.get(position).getHours());
         holder.id.setText(mlist.data.get(position).getOrderId() + "");
         holder.loc1.setText(mlist.data.get(position).getFromdis());
@@ -129,7 +138,7 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView order, loc1, loc2, hours, name, ratNum, id , date;
+        TextView order, loc1, loc2, hours, name, ratNum, id, date;
         RatingBar ratingBar;
         EditText amount;
         Button sendOffer;
@@ -168,5 +177,24 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
         alertDialog.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         alertDialog.show();
+    }
+
+    public static String convertUtc2Local(String utcTime) {
+        String time = "";
+        if (utcTime != null) {
+            SimpleDateFormat utcFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+            utcFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date gpsUTCDate = null;//from  ww  w.j  a va 2 s  . c  o  m
+            try {
+                gpsUTCDate = utcFormatter.parse(utcTime);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            SimpleDateFormat localFormatter = new SimpleDateFormat("yyyy-MM-dd / HH:mm:ss", Locale.ENGLISH);
+            localFormatter.setTimeZone(TimeZone.getDefault());
+            assert gpsUTCDate != null;
+            time = localFormatter.format(gpsUTCDate.getTime());
+        }
+        return time;
     }
 }

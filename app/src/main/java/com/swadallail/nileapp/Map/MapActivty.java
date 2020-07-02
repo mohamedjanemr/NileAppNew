@@ -29,6 +29,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.swadallail.nileapp.R;
@@ -105,8 +106,8 @@ public class MapActivty extends FragmentActivity implements OnMapReadyCallback, 
                 // Clears the previously touched position
                 mMap.clear();
                 // Animating to the touched position
-
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                CameraPosition cm = new CameraPosition.Builder().target(latLng).zoom(15).build();
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cm));
 
                 // Placing a marker on the touched position
                 mMap.addMarker(markerOptions);

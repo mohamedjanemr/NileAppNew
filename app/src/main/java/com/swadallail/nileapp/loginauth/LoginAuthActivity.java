@@ -201,7 +201,7 @@ public class LoginAuthActivity extends AppCompatActivity {
                                     Log.e("FromLogin" , "Service Started");
                                     startService(chatNewService);
                                 }*/
-                                binserviceing(response.body().data.token);
+                                //binserviceing(response.body().data.token);
                                 dialog.dismiss();
                                 //intent.putExtra("token",response.body().data.token);
                                 //bindService(intent, mConnection, Context.BIND_AUTO_CREATE);

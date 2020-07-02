@@ -12,6 +12,7 @@ import android.util.Log;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.adapters.HistoryAdapter;
 import com.swadallail.nileapp.adapters.OfferAdapter;
+import com.swadallail.nileapp.data.GetOffersResponse;
 import com.swadallail.nileapp.data.GetOrdersRes;
 import com.swadallail.nileapp.data.Main;
 import com.swadallail.nileapp.databinding.ActivityOffersPageBinding;
@@ -49,10 +50,10 @@ public class OffersPage extends AppCompatActivity {
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
         String Token = "Bearer "+ SharedHelper.getKey(OffersPage.this , "token");
-        Call<Main<GetOrdersRes>> call = userclient.GetOrders(Token);
-        call.enqueue(new Callback<Main<GetOrdersRes>>() {
+        Call<Main<GetOffersResponse>> call = userclient.GetOrders(Token);
+        call.enqueue(new Callback<Main<GetOffersResponse>>() {
             @Override
-            public void onResponse(Call<Main<GetOrdersRes>> call, Response<Main<GetOrdersRes>> response) {
+            public void onResponse(Call<Main<GetOffersResponse>> call, Response<Main<GetOffersResponse>> response) {
                 if (response.body() != null){
                     //Log.e("Body" , ""+response.body().data.size());
                     adapter = new OfferAdapter(OffersPage.this , response.body());
@@ -67,7 +68,7 @@ public class OffersPage extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Main<GetOrdersRes>> call, Throwable t) {
+            public void onFailure(Call<Main<GetOffersResponse>> call, Throwable t) {
                 dialog.dismiss();
             }
         });

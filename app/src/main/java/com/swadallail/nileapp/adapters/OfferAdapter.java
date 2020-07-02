@@ -16,14 +16,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.accept.AcceptOffers;
+import com.swadallail.nileapp.data.GetOffersResponse;
 import com.swadallail.nileapp.data.GetOrdersRes;
 import com.swadallail.nileapp.data.Main;
 
 public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.MyViewHolder> {
     Context con ;
-    Main<GetOrdersRes> mlist ;
+    Main<GetOffersResponse> mlist ;
 
-    public OfferAdapter(Context con, Main<GetOrdersRes> mlist) {
+    public OfferAdapter(Context con, Main<GetOffersResponse> mlist) {
         this.con = con;
         this.mlist = mlist;
     }

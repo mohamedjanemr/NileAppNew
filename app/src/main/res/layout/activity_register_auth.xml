@@ -139,6 +139,27 @@
                                     android:hint="@string/txt_confirm" />
                             </com.google.android.material.textfield.TextInputLayout>
                         </androidx.cardview.widget.CardView>
+                        <CheckBox
+                            android:id="@+id/terms_conditions"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:text="@string/terms_conditions"
+                            android:textColor="@color/background_color"
+                            android:textColorHint="#FF9800"
+                            android:maxLines="2"
+                            android:textColorLink="#FF9800"
+                            android:textSize="14sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="الشروط والاحكام"
+                            android:layout_gravity="center"
+                            android:layout_margin="10dp"
+                            android:id="@+id/go_condetions"
+                            android:textSize="18sp"
+                            android:textColor="#0027FF"
+                            />
 
                         <Button
                             android:id="@+id/btn_register"

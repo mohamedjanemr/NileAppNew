@@ -11,6 +11,7 @@ import com.swadallail.nileapp.data.ChatResponse;
 import com.swadallail.nileapp.data.ChatUsersResponse;
 import com.swadallail.nileapp.data.FacebookToken;
 import com.swadallail.nileapp.data.GetNewOrdersData;
+import com.swadallail.nileapp.data.GetOffersResponse;
 import com.swadallail.nileapp.data.GetOrdersRes;
 import com.swadallail.nileapp.data.LocationBody;
 import com.swadallail.nileapp.data.Main;
@@ -56,8 +57,10 @@ public interface ApiInterface {
     Call<MainResponse<ArrayList<ChatResponse<ChatUsersResponse>>>> UserChats(@Header("Authorization") String token);
     @POST("Chat/OpenChat")
     Call<MainResponse<ChatResponse<ArrayList<MessageViewModel>>>> GetChatMessages(@Header("Authorization") String token , @Body MessageBody messageBody);
+    @GET("Order/OrdersHasOffers")
+    Call<Main<GetOffersResponse>> GetOrders(@Header("Authorization") String token );
     @GET("Order/GetOrders")
-    Call<Main<GetOrdersRes>> GetOrders(@Header("Authorization") String token );
+    Call<Main<GetOrdersRes>> GetOldOrders(@Header("Authorization") String token );
     @GET("Order/GetNewOrders")
     Call<Main<GetNewOrdersData>> GetNewOrders(@Header("Authorization") String token , @Query("lat") double lat , @Query("lng") double lng  );
     @POST("Order/SendOffer")

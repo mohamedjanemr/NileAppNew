@@ -142,10 +142,11 @@ public class ChatActivity extends AppCompatActivity {
                         sendButton.setImageDrawable(getDrawable(R.drawable.ic_send_blue));
                     }
                 });
-                ArrayList<MessageViewModel> datasend = new ArrayList<>();
-                if (message.isEmpty() && encodedImage == null) {
+                if (message.isEmpty() && encodedImage.equals("") ) {
                     Toast.makeText(ChatActivity.this, "رجاء قم بكتابة الرسالة او قم بأدراج صورة", Toast.LENGTH_SHORT).show();
-                } else {
+                } else if (encodedImage.equals("") && editText.getText().toString().trim().matches("")) {
+                    Toast.makeText(ChatActivity.this, "رجاء قم بأدخال نص لا يسمح بالمساحات", Toast.LENGTH_SHORT).show();
+                }else{
                     editText.setText("");
                     CustomMessage object = new CustomMessage();
                     object.Message = message;
@@ -155,8 +156,6 @@ public class ChatActivity extends AppCompatActivity {
                     model.isMine = 1;
                     model.content = message;
                     model.from = SharedHelper.getKey(ChatActivity.this, "UserName");
-
-
                     if (!encodedImage.equals("")) {
                         object.Img = encodedImage;
                         model.images = encodedImage;
@@ -170,7 +169,6 @@ public class ChatActivity extends AppCompatActivity {
                     gridView.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
                     gridView.scrollToPosition(adapter.getItemCount() - 1);
-                    //scrollToBottom();
                     adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
                         @Override
                         public void onChanged() {
@@ -452,7 +450,7 @@ public class ChatActivity extends AppCompatActivity {
                     ByteArrayOutputStream natface = new ByteArrayOutputStream();
                     Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
                     thumbnail.compress(Bitmap.CompressFormat.JPEG, 50, natface);
-                    //encodedImage = Base64.encodeToString(natface.toByteArray(), Base64.DEFAULT);
+                    encodedImage = Base64.encodeToString(natface.toByteArray(), Base64.DEFAULT);
                     Toast.makeText(ChatActivity.this, "تم اختيار الصورة", Toast.LENGTH_SHORT).show();
                     sendButton.setImageDrawable(getDrawable(R.drawable.ic_send_blue));
                 } else {

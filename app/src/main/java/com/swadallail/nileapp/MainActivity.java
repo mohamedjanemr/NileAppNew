@@ -849,7 +849,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     /*intent = new Intent(MainActivity.this, ChatService.class);
                     intent.putExtra("token", "");
                     bindService(intent, mConnection, Context.BIND_AUTO_CREATE);*/
-                    stopService(new Intent(MainActivity.this , ChatNewService.class));
+                    //stopService(new Intent(MainActivity.this , ChatNewService.class));
                     SharedHelper.putKey(MainActivity.this, "UserName", "NONE");
                     SharedHelper.putKey(MainActivity.this, "name", "NONE");
                     SharedHelper.putKey(MainActivity.this, "picUrl", "NONE");//isLoged

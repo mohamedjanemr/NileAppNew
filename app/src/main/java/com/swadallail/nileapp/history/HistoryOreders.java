@@ -55,7 +55,7 @@ public class HistoryOreders extends AppCompatActivity {
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
         String Token = "Bearer "+SharedHelper.getKey(HistoryOreders.this , "token");
-        Call<Main<GetOrdersRes>> call = userclient.GetOrders(Token);
+        Call<Main<GetOrdersRes>> call = userclient.GetOldOrders(Token);
         call.enqueue(new Callback<Main<GetOrdersRes>>() {
             @Override
             public void onResponse(Call<Main<GetOrdersRes>> call, Response<Main<GetOrdersRes>> response) {

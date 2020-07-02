@@ -72,7 +72,6 @@ public class OrderProgress extends AppCompatActivity {
             binding.nname.setText("المندوب");
             binding.goo.setVisibility(View.GONE);
             binding.lin.setVisibility(View.GONE);
-            binding.btnRatere.setVisibility(View.VISIBLE);
         } else {
             binding.btnRatere.setVisibility(View.GONE);
             binding.btnRec.setVisibility(View.VISIBLE);
@@ -85,6 +84,9 @@ public class OrderProgress extends AppCompatActivity {
         } else {
             binding.phoneCall.setVisibility(View.GONE);
             binding.openChat.setVisibility(View.GONE);
+            if(rule.equals("WebClient")){
+                binding.btnRatere.setVisibility(View.VISIBLE);
+            }
         }
 
         binding.openChat.setOnClickListener(new View.OnClickListener() {
@@ -193,12 +195,6 @@ public class OrderProgress extends AppCompatActivity {
                 showSentAlert();
                 j = 1;
             }
-            /*if (j == 0) {
-
-            } else if (j == 1) {
-                Toast.makeText(OrderProgress.this, "تم التسليم من قبل", Toast.LENGTH_SHORT).show();
-            }*/
-
         }
 
         public void goTo(View view) {
@@ -345,7 +341,6 @@ public class OrderProgress extends AppCompatActivity {
                 } else {
                     Toast.makeText(OrderProgress.this, "رجاء قم بتقييم المندوب", Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
         alertDialog3.getWindow().getAttributes().windowAnimations = R.style.DialogTheme;

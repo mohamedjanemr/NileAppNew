@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
+import com.swadallail.nileapp.Conditions;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.api.model.ResultRegisterUser;
 import com.swadallail.nileapp.api.service.UserClient;
@@ -40,6 +41,13 @@ public class RegisterAuthActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_register_auth);
         handlers = new MyClick(this);
         binding.setHandlers(handlers);
+        binding.goCondetions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent1 = new Intent(RegisterAuthActivity.this, Conditions.class);
+                startActivity(intent1);
+            }
+        });
 
     }
 
@@ -68,6 +76,9 @@ public class RegisterAuthActivity extends AppCompatActivity {
             } else if (!conpass.equals(pass)) {
                 Toast.makeText(RegisterAuthActivity.this, "كلمة المرور غير متطابقة", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
+            } else if (!binding.termsConditions.isChecked()) {
+                dialog.dismiss();
+                Toast.makeText(RegisterAuthActivity.this, "برجاء قم بالموافقة على الشروط وسياسة الخصوصية", Toast.LENGTH_SHORT).show();
             } else {
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl("https://test.nileappco.com/api/User/")
@@ -81,14 +92,12 @@ public class RegisterAuthActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<MainResponse<UserRegisterResponse>> call, Response<MainResponse<UserRegisterResponse>> response) {
                         if (response.body() != null) {
-                            if(response.body().success){
-                                Log.e("Su" , response.body().success+"");
-                                Toast.makeText(RegisterAuthActivity.this, "تم انشاء الحساب بنجاح", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(RegisterAuthActivity.this, LoginAuthActivity.class));
-                                finish();
+                            if (response.body().data != null && response.body().success) {
+                                Log.e("Su", response.body().success + "");
+                                Toast.makeText(RegisterAuthActivity.this, "يرجى مراجعة البريد الإلكترونى للتفعيل", Toast.LENGTH_LONG).show();
                                 dialog.dismiss();
-                            }else {
-
+                            } else {
+                                Toast.makeText(RegisterAuthActivity.this, "هناك خطأ فى الشبكة", Toast.LENGTH_SHORT).show();
                             }
 
                         }
@@ -99,6 +108,7 @@ public class RegisterAuthActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call<MainResponse<UserRegisterResponse>> call, Throwable t) {
                         dialog.dismiss();
+                        Toast.makeText(RegisterAuthActivity.this, "هناك خطأ فى الشبكة", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -117,5 +127,26 @@ public class RegisterAuthActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //startActivity(new Intent(RegisterAuthActivity.this, LoginAuthActivity.class));
+        RegisterAuthActivity.this.finish();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //startActivity(new Intent(RegisterAuthActivity.this, LoginAuthActivity.class));
+        RegisterAuthActivity.this.finish();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        //startActivity(new Intent(RegisterAuthActivity.this , LoginAuthActivity.class));
+        RegisterAuthActivity.this.finish();
     }
 }
