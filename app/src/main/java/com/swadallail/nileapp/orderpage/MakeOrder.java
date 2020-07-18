@@ -55,8 +55,8 @@ public class MakeOrder extends AppCompatActivity {
     ProgressDialog dialog;
     int LAUNCH_MAP_FROM = 4;
     int LAUNCH_MAP_TO = 3;
-    double latFrom = 0.0 , latTo = 0.0, lngFrom= 0.0 , lngTo= 0.0;
-    String encodedImage ;
+    double latFrom = 0.0, latTo = 0.0, lngFrom = 0.0, lngTo = 0.0;
+    String encodedImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +84,9 @@ public class MakeOrder extends AppCompatActivity {
         public void plus(View view) {
             int i = Integer.parseInt(binding.txtTime.getText().toString());
             int f = i + 1;
-            if(f > 6){
+            if (f > 6) {
                 Toast.makeText(MakeOrder.this, "الحد الأقصى لعدد الساعات 6 ساعات", Toast.LENGTH_SHORT).show();
-            }else {
+            } else {
                 binding.txtTime.setText(String.valueOf(f));
             }
 
@@ -112,7 +112,6 @@ public class MakeOrder extends AppCompatActivity {
             startActivityForResult(i, LAUNCH_MAP_TO);
         }
     }
-
 
 
     private void requestPermissiongallary() {
@@ -192,18 +191,18 @@ public class MakeOrder extends AppCompatActivity {
         if (requestCode == LAUNCH_MAP_FROM) {
             if (resultCode == RESULT_OK) {
 
-                latFrom = data.getDoubleExtra("lat",0);
-                lngFrom = data.getDoubleExtra("lng",0);
-                Log.e("LatFrom","" +latFrom);
-                Log.e("LngFrom",""+lngFrom);
+                latFrom = data.getDoubleExtra("lat", 0);
+                lngFrom = data.getDoubleExtra("lng", 0);
+                Log.e("LatFrom", "" + latFrom);
+                Log.e("LngFrom", "" + lngFrom);
             }
         } else if (requestCode == LAUNCH_MAP_TO) {
             if (resultCode == RESULT_OK) {
 
-                latTo = data.getDoubleExtra("lat",0);
-                lngTo = data.getDoubleExtra("lng",0);
-                Log.e("Latto","" +latTo);
-                Log.e("Lngto",""+lngTo);
+                latTo = data.getDoubleExtra("lat", 0);
+                lngTo = data.getDoubleExtra("lng", 0);
+                Log.e("Latto", "" + latTo);
+                Log.e("Lngto", "" + lngTo);
             }
         } else if (requestCode == GALLERY) {
             if (data != null) {
@@ -227,6 +226,7 @@ public class MakeOrder extends AppCompatActivity {
         }
 
     }
+
     private void loadOrder() {
 
         String image = "";
@@ -237,46 +237,48 @@ public class MakeOrder extends AppCompatActivity {
             user_imgn.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
             encodedImage = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT);
         } else {
-            encodedImage = null ;
+            encodedImage = "";
         }
-
+        Log.e("ImagesOrder" ,encodedImage );
         String fromAddress = binding.edLocationfrom.getText().toString();
         String tpAddress = binding.edOrderlocationto.getText().toString();
-        if(tpAddress.isEmpty()){
+        if (tpAddress.isEmpty()) {
             Toast.makeText(this, "قم بأدخال عنوان الاستلام", Toast.LENGTH_SHORT).show();
-        }else if (order.isEmpty()){
+        } else if (order.isEmpty()) {
             Toast.makeText(this, "قم بأدخال الطلب", Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else {
             dialog = new ProgressDialog(MakeOrder.this);
             dialog.setMessage(getApplicationContext().getResources().getString(R.string.the_data_is_loaded));
             dialog.show();
             dialog.setCanceledOnTouchOutside(false);
             dialog.setCancelable(false);
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://test.nileappco.com/api/")
+                    .baseUrl("https://www.nileappco.com/api/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             ApiInterface userclient = retrofit.create(ApiInterface.class);
-            String to = "Bearer "+SharedHelper.getKey(MakeOrder.this , "token");
-            OrderBody body = new OrderBody(encodedImage,order,String.valueOf(latFrom),String.valueOf(lngFrom),String.valueOf(latTo),String.valueOf(lngTo),time,fromAddress,tpAddress);
-            Call<MainResponse<OrderResponse>> call = userclient.UploadOrder(to ,body);
+            String to = "Bearer " + SharedHelper.getKey(MakeOrder.this, "token");
+            OrderBody body = new OrderBody(encodedImage, order, String.valueOf(latFrom), String.valueOf(lngFrom), String.valueOf(latTo), String.valueOf(lngTo), time, fromAddress, tpAddress);
+            Call<MainResponse<OrderResponse>> call = userclient.UploadOrder(to, body);
             call.enqueue(new Callback<MainResponse<OrderResponse>>() {
                 @Override
                 public void onResponse(Call<MainResponse<OrderResponse>> call, Response<MainResponse<OrderResponse>> response) {
-                    dialog.dismiss();
-                    Log.e("Done",""+response.body());
-                    if(response.body() != null){
-                        Toast.makeText(MakeOrder.this, "تم ارسال الطلب بنجاح الرجاء انتظار الرد", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(MakeOrder.this , MainActivity.class));
-                        finish();
+                    if (response.body() != null) {
+                        if (response.body().success) {
+                            Toast.makeText(MakeOrder.this, "تم ارسال الطلب بنجاح الرجاء انتظار الرد", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(MakeOrder.this, MainActivity.class));
+                            dialog.dismiss();
+                            finish();
+                        }
+
                     }
                 }
 
                 @Override
                 public void onFailure(Call<MainResponse<OrderResponse>> call, Throwable t) {
-                    dialog.dismiss();
+
                     Toast.makeText(MakeOrder.this, "هناك خطأ الرجاء المحاولة مرة اخرى", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
                 }
             });
         }

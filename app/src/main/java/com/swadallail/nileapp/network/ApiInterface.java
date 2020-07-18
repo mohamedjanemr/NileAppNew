@@ -6,10 +6,12 @@ import com.swadallail.nileapp.api.model.RegisterUser;
 import com.swadallail.nileapp.api.model.ResultRegisterUser;
 import com.swadallail.nileapp.data.AcceptBody;
 import com.swadallail.nileapp.data.AcceptRes;
+import com.swadallail.nileapp.data.BalanceResponse;
 import com.swadallail.nileapp.data.ChatMainResponse;
 import com.swadallail.nileapp.data.ChatResponse;
 import com.swadallail.nileapp.data.ChatUsersResponse;
 import com.swadallail.nileapp.data.FacebookToken;
+import com.swadallail.nileapp.data.FirebaseToken;
 import com.swadallail.nileapp.data.GetNewOrdersData;
 import com.swadallail.nileapp.data.GetOffersResponse;
 import com.swadallail.nileapp.data.GetOrdersRes;
@@ -72,7 +74,7 @@ public interface ApiInterface {
     @POST("Order/OrderPicked")
     Call<MainResponse> orderPicked(@Header("Authorization") String token , @Body PickedBody body);
     @POST("Order/OrderDelivered")
-    Call<MainResponse> orderDelivered(@Header("Authorization") String token , @Body PickedBody body);
+    Call<MainResponse<BalanceResponse>> orderDelivered(@Header("Authorization") String token , @Body PickedBody body);
     @POST("Order/RateUser")
     Call<MainResponse> rateUser(@Header("Authorization") String token , @Body RateBody body);
     @POST("Representive/RequestRepresentive")
@@ -81,5 +83,7 @@ public interface ApiInterface {
     Call<MainResponse> CurrentLocation(@Header("Authorization") String token , @Body LocationBody body);
     @POST("User/ConfirmPhone")
     Call<MainResponse> ConfirmPhone(@Header("Authorization") String token , @Body PhoneBody body);
+    @POST("User/AddFirebaseToken")
+    Call<MainResponse> SendFirebaseToken(@Header("Authorization") String token , @Body FirebaseToken Token);
 
 }

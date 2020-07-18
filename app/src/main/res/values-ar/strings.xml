@@ -129,7 +129,7 @@
     <string name="txt_password">كلمة المرور</string>
     <string name="txt_remember">تذكرنى</string>
     <string name="txt_forgetpass">نسيت كلمة السر</string>
-    <string name="txt_or">او قم بالتسجيل عن طريق</string>
+    <string name="txt_or">تسجيل الدخول عن طريق</string>
     <string name="txt_newAcc">تسجيل حساب جديد</string>
     <string name="txt_register">تسجيل حساب جديد</string>
     <string name="txt_confirm">تأكيد كلمة السر</string>

@@ -12,4 +12,12 @@ public class ChatResponse<T> {
     public ArrayList<T> users;
     @SerializedName("messages")
     public T messages;
+
+    public int getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
+    }
 }

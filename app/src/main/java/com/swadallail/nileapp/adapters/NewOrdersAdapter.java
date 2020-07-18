@@ -45,6 +45,7 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
     Main<GetNewOrdersData> mlist;
     ProgressDialog dialog;
     String pricea;
+    Date date ;
     char first;
 
     public NewOrdersAdapter(Context con, Main<GetNewOrdersData> mlist) {
@@ -62,13 +63,13 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        if (mlist.data.get(position).getOrderDate() != null) {
+        if(mlist.data.get(position).getOrderDate() != null){
             holder.date.setText(convertUtc2Local(mlist.data.get(position).getOrderDate()));
         }
         holder.order.setText(mlist.data.get(position).getDescription());
         holder.hours.setText("" + mlist.data.get(position).getHours());
         holder.name.setText("" + mlist.data.get(position).getOwnerName());
-        // holder.hours.setText("" + mlist.data.get(position).getHours());
+       // holder.hours.setText("" + mlist.data.get(position).getHours());
         //holder.date.setText(mlist.data.get(position).getOrderDate());
         //holder.hours.setText("" + mlist.data.get(position).getHours());
         holder.id.setText(mlist.data.get(position).getOrderId() + "");
@@ -96,7 +97,7 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
                         dialog.setCanceledOnTouchOutside(false);
                         dialog.setCancelable(false);
                         Retrofit retrofit = new Retrofit.Builder()
-                                .baseUrl("https://test.nileappco.com/api/")
+                                .baseUrl("https://www.nileappco.com/api/")
                                 .addConverterFactory(GsonConverterFactory.create())
                                 .build();
                         ApiInterface userclient = retrofit.create(ApiInterface.class);
@@ -138,7 +139,7 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView order, loc1, loc2, hours, name, ratNum, id, date;
+        TextView order, loc1, loc2, hours, name, ratNum, id , date;
         RatingBar ratingBar;
         EditText amount;
         Button sendOffer;
@@ -178,11 +179,10 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         alertDialog.show();
     }
-
     public static String convertUtc2Local(String utcTime) {
         String time = "";
         if (utcTime != null) {
-            SimpleDateFormat utcFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+            SimpleDateFormat utcFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.CHINA);
             utcFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
             Date gpsUTCDate = null;//from  ww  w.j  a va 2 s  . c  o  m
             try {
@@ -190,7 +190,7 @@ public class NewOrdersAdapter extends RecyclerView.Adapter<NewOrdersAdapter.MyVi
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            SimpleDateFormat localFormatter = new SimpleDateFormat("yyyy-MM-dd / HH:mm:ss", Locale.ENGLISH);
+            SimpleDateFormat localFormatter = new SimpleDateFormat("yyyy-MM-dd / HH:mm:ss", Locale.CHINA);
             localFormatter.setTimeZone(TimeZone.getDefault());
             assert gpsUTCDate != null;
             time = localFormatter.format(gpsUTCDate.getTime());

@@ -82,8 +82,12 @@ import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.microsoft.signalr.HubConnectionBuilder;
 import com.smartarmenia.dotnetcoresignalrclientjava.HubConnection;
 import com.smartarmenia.dotnetcoresignalrclientjava.WebSocketHubConnection;
@@ -108,6 +112,7 @@ import com.swadallail.nileapp.api.model.ShopeType;
 import com.swadallail.nileapp.api.service.UserClient;
 import com.swadallail.nileapp.chatpage.ChatActivity;
 import com.swadallail.nileapp.chatroomspage.ChatRooms;
+import com.swadallail.nileapp.data.FirebaseToken;
 import com.swadallail.nileapp.data.GetNewOrdersData;
 import com.swadallail.nileapp.data.LocationBody;
 import com.swadallail.nileapp.data.Main;
@@ -158,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     int flagMarkerShow = 0;  //فلاق عرض دبوس البحث لوحده فقط
     int flagContentInfo = 0;  //فلاق عرض او إخفاء محتويات النافذة التي بالأسف
     Marker lastMarker;
+    String firebasetoken;
 
 
     LinearLayout linearSearch, info;
@@ -172,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout mdrawerLayout;
     private ActionBarDrawerToggle mdrawerToggle;
     private NavigationView mnavigationView;
+    private TextView balance ;
 
 
     private int lastIdMarker;
@@ -239,15 +246,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         getChatService = new ChatService();
         mapView = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        //intent = new Intent(this, ChatService.class);
-        //intent.putExtra("token", SharedHelper.getKey(MainActivity.this, "token"));
+        firbaseDeviceToken();
 
-        /*String to = SharedHelper.getKey(MainActivity.this, "token");
-        Log.e("TokenFromStartAc", to);
-        if (!to.isEmpty()) {
-            intent.putExtra("token", to);
-        }*/
-        //bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        //SharedHelper.putKey(this , "firebaseToken" , firbaseDeviceToken());
+        //Log.e("MainFirebaseToken" ,firebasetoken);
+
         call = (Button) findViewById(R.id.btn_call);
         order = findViewById(R.id.btn_order);
         move = (Button) findViewById(R.id.btn_move);
@@ -586,9 +589,64 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+     void firbaseDeviceToken() {
+
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("MainActivity", "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        firebasetoken = task.getResult().getToken();
+                        Log.e("FIRETOKEN" , firebasetoken);
+                        callFirebaseApi(firebasetoken);
+                        // Log and toast
+                        //String msg = getString(R.string.msg_token_fmt, token);
+                        //Log.d(TAG, msg);
+                        //Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        // return firebasetoken ;
+    }
+
+    private void callFirebaseApi(String firebasetoken) {
+        Log.e("FIRETOKEN22" , firebasetoken);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://www.nileappco.com/api/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiInterface userclient = retrofit.create(ApiInterface.class);
+        //LocationBody bo = new LocationBody(lat, lng);
+        FirebaseToken token = new FirebaseToken(firebasetoken);
+        String Token = "Bearer " + SharedHelper.getKey(MainActivity.this, "token");
+        Call<MainResponse> call = userclient.SendFirebaseToken(Token, token);
+        call.enqueue(new Callback<MainResponse>() {
+            @Override
+            public void onResponse(Call<MainResponse> call, Response<MainResponse> response) {
+                if(response.body() != null){
+                    if(response.body().success){
+                        //Toast.makeText(MainActivity.this, "تم تسجيل الفاير بيز", Toast.LENGTH_SHORT).show();
+                    }
+                    Log.e("errorMain" , response.body().success+"");
+                }
+                //
+            }
+
+            @Override
+            public void onFailure(Call<MainResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
     private void sendLocation(double lat, double lng) {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://test.nileappco.com/api/")
+                .baseUrl("https://www.nileappco.com/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
@@ -800,9 +858,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         } else if (item.getItemId() == R.id.join_asDelivery) {
             String role = SharedHelper.getKey(MainActivity.this, "role");
+            String pconfirm = SharedHelper.getKey(MainActivity.this, "phoneConfirm");
             if (role.equals("WebClient")) {
-                Intent goToRegis = new Intent(MainActivity.this, UploadData.class);
-                startActivity(goToRegis);
+                if(pconfirm.equals("true")){
+                    Intent goToRegis = new Intent(MainActivity.this, UploadData.class);
+                    startActivity(goToRegis);
+                }else {
+                    Intent gotoPhone = new Intent(MainActivity.this, AuthPhone.class);
+                    startActivity(gotoPhone);
+                }
             } else {
                 Toast.makeText(this, "تم تسجيل حسابكم كمندوب بالفعل", Toast.LENGTH_LONG).show();
             }
@@ -1573,7 +1637,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://nileapp-001-site3.itempurl.com/api/Shop/")
+                .baseUrl("https://www.nileappco.com/api/Shop/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -1788,11 +1852,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             String shopeName = item.getShopeName();
                             String shopePhone = item.getPhone();
                             LatLng shopeLatLng = item.getLatLng();
-                            Boolean schatEnabled = item.getChatenable();
-                            String sshopID = item.getUserId();
-                            Log.e("ALLITEMS", "" + item.getUserId());
-                            Log.e("StringID", sshopID);
-                            Log.e("Boolean", schatEnabled + "");
+
                             flagMarkerShow = 1;
 
 
@@ -1809,11 +1869,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
                             lastPhoneMarker = shopePhone;
-                            LatLng mo = new LatLng(mlat, mlong);
-                            movelatlng = mo;
-                            chatEnabled = schatEnabled;
-                            shopID = sshopID;
-                            chat.setEnabled(true);
+                            movelatlng = shopeLatLng;
+
+
                             //if (flagInfo == 0) {
                             //   call.setEnabled(true);
                             move.setEnabled(true);
@@ -2082,6 +2140,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mlat = myLocation.getLatitude();
                         mlong = myLocation.getLongitude();
                         sendLocation(mlat, mlong);
+
                     } catch (Exception e) {
                         Toast.makeText(MainActivity.this, "قم بقبول الصلاحية لتحديد موقعك", Toast.LENGTH_SHORT).show();
                     }
@@ -2212,7 +2271,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mdrawerToggle.syncState();
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 mnavigationView = (NavigationView) findViewById(R.id.nav_view);
-
+                balance = mnavigationView.findViewById(R.id.nav_header_name);
+                String role = SharedHelper.getKey(MainActivity.this, "role");
+                if (role.equals("WebClient")) {
+                    balance.setVisibility(View.GONE);
+                } else {
+                    balance.setVisibility(View.VISIBLE);
+                    balance.setText("الرصيد المتبقى :"+SharedHelper.getKey(MainActivity.this , "balance"));
+                }
 
                 try {
                     if (SaveSharedPreferencePhone.getUserName(MainActivity.this).length() != 0) {
@@ -2246,21 +2312,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
         super.onStart();
     }
-
-    /**/
-    /*private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            ChatService.LocalBinder binder = (ChatService.LocalBinder) service;
-            chatService = binder.getService();
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };*/
 
 }

@@ -81,7 +81,7 @@ public class RegisterAuthActivity extends AppCompatActivity {
                 Toast.makeText(RegisterAuthActivity.this, "برجاء قم بالموافقة على الشروط وسياسة الخصوصية", Toast.LENGTH_SHORT).show();
             } else {
                 Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl("https://test.nileappco.com/api/User/")
+                        .baseUrl("https://www.nileappco.com/api/User/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
                 ApiInterface userclient = retrofit.create(ApiInterface.class);
@@ -92,11 +92,11 @@ public class RegisterAuthActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<MainResponse<UserRegisterResponse>> call, Response<MainResponse<UserRegisterResponse>> response) {
                         if (response.body() != null) {
-                            if (response.body().data != null && response.body().success) {
-                                Log.e("Su", response.body().success + "");
+                            if (response.body().success) {
                                 Toast.makeText(RegisterAuthActivity.this, "يرجى مراجعة البريد الإلكترونى للتفعيل", Toast.LENGTH_LONG).show();
                                 dialog.dismiss();
                             } else {
+                                dialog.dismiss();
                                 Toast.makeText(RegisterAuthActivity.this, "هناك خطأ فى الشبكة", Toast.LENGTH_SHORT).show();
                             }
 

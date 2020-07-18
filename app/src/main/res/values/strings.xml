@@ -46,7 +46,7 @@
     <string name="cancel">Cancel</string>
     <string name="txt_remember">Remember me</string>
     <string name="txt_forgetpass">Forget Password ?</string>
-    <string name="txt_or">Or Login With</string>
+    <string name="txt_or">Login With</string>
     <string name="txt_newAcc">Create New Account</string>
     <string name="name_of_activity">Name of activity</string>
     <string name="user_name">User Name</string>

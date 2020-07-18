@@ -42,36 +42,24 @@ public class ChatService extends Service implements OnLogout {
     static HubConnection hubConnection;
     Handler handler;
     //String token;
-    static boolean hubStarted = false;
+    boolean hubStarted = false;
     MainActivity activity;
     Intent restartServiceIntent;
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        String token = intent.getExtras().getString("token");
-        Log.e("TokenFromStartHub", token);
-        if(!token.equals(SharedHelper.getKey(getApplicationContext(),"token"))){
-            hubStarted = false ;
-            hubStarted = StartHubConnection(token);
-            if (!hubStarted) {
-                ExitWithMessage("Chat Service failed to start!");
-            } else if (hubStarted) {
-                ExitWithMessage("Done");
-            }
-        }else {
-            hubStarted = StartHubConnection(token);
-            if (!hubStarted) {
-                ExitWithMessage("Chat Service failed to start!");
-            } else if (hubStarted) {
-                ExitWithMessage("Done");
-            }
+        String token = intent.getStringExtra("Token");
+//        Log.e("TokenFromStartHub", token);
+        hubStarted = StartHubConnection(token);
+        if (!hubStarted) {
+            ExitWithMessage("Chat Service failed to start!");
+        } else {
+            ExitWithMessage("Done");
         }
-        if(token.equals("")){
-            hubConnection.stop();
-        }
-        OnConnectionStoped();
-        onTaskRemoved(intent);
+
+        //OnConnectionStoped();
+        //onTaskRemoved(intent);
         return mBinder;
     }
 
@@ -79,30 +67,12 @@ public class ChatService extends Service implements OnLogout {
         StartHubConnection(tokens);
     }
 
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
-        restartServiceIntent.setPackage(getPackageName());
-        String tokend = rootIntent.getStringExtra("token");
-        try {
-
-            Log.e("restart Service", ": restarted");
-            StartHubConnection(tokend);
-            startService(restartServiceIntent);
-
-        } catch (Exception e) {
-            Log.e("Service", ": Stoped");
-            OnConnectionStoped();
-        }
-
-        super.onTaskRemoved(rootIntent);
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent ,flags , startId);
-        OnConnectionStoped();
-        onTaskRemoved(intent);
+        super.onStartCommand(intent, flags, startId);
+        //OnConnectionStoped();
+        //onTaskRemoved(intent);
 
 
         return START_STICKY;
@@ -134,15 +104,15 @@ public class ChatService extends Service implements OnLogout {
                 .setSound(alarmSound)
                 .setAutoCancel(true)
                 .setVibrate(pattern);
-        if(type == 0){
+        if (type == 0) {
             resultIntent = new Intent(this, ChatRooms.class);
-        }else if(type == 1){
+        } else if (type == 1) {
             resultIntent = new Intent(this, DelegeteHome.class);
-        }else if (type == 2){
+        } else if (type == 2) {
             resultIntent = new Intent(this, OffersPage.class);
-        }else if(type == 3){
+        } else if (type == 3) {
             resultIntent = new Intent(this, HistoryOreders.class);
-        }else {
+        } else {
             resultIntent = new Intent(this, MainActivity.class);
         }
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -222,7 +192,7 @@ public class ChatService extends Service implements OnLogout {
 
         hubConnection =
                 HubConnectionBuilder
-                        .create("https://test.nileappco.com/chatHub")
+                        .create("https://www.nileappco.com/chatHub")
                         .withAccessTokenProvider(Single.defer(() -> {
                             return Single.just(token);
 
@@ -238,13 +208,17 @@ public class ChatService extends Service implements OnLogout {
     }
 
     private void OnConnectionStoped() {
+        hubConnection.stop().blockingAwait();
+        Log.e("ConnectionState2", hubConnection.getConnectionState() + "");
         hubConnection.onClosed(new OnClosedCallback() {
             @Override
             public void invoke(Exception exception) {
-                StartHubConnection(SharedHelper.getKey(getApplicationContext(),"token"));
-                ExitWithMessage("Connection Stoped but Reconnecting");
+                Log.e("ConnectionState3", hubConnection.getConnectionState() + "");
+                hubConnection.getConnectionState();
             }
         });
+        hubStarted = false;
+
     }
 
     public static class HubTask extends AsyncTask<HubConnection, Void, Void> {
@@ -260,6 +234,7 @@ public class ChatService extends Service implements OnLogout {
             hubConnection.start().blockingAwait();//.andThen(()-> Log.e("",""));
             String conn = hubConnection.getConnectionId();
             Log.e("Conn", "" + conn);
+            Log.e("ConnectionState1", hubConnection.getConnectionState() + "");
             return null;
         }
     }
@@ -275,7 +250,7 @@ public class ChatService extends Service implements OnLogout {
     }
 
     public void Send(CustomMessage object, String token) {
-        StartHubConnection(token);
+        //StartHubConnection(token);
         try {
             hubConnection.send("Send", object);
             Log.e("message", "" + object.Message);
@@ -328,7 +303,8 @@ public class ChatService extends Service implements OnLogout {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("EXIT", "ondestroy!");
-        SharedHelper.putKey(getApplicationContext(), "token", "");
+        OnConnectionStoped();
+        Log.e("ChatService", "Destroyed!");
+
     }
 }

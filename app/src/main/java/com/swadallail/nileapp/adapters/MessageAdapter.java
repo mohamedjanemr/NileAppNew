@@ -2,6 +2,7 @@ package com.swadallail.nileapp.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
@@ -18,10 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
+import com.swadallail.nileapp.ImgView.DisplayImage;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.data.MessageResponse;
 import com.swadallail.nileapp.modelviews.MessageViewModel;
 import com.swadallail.nileapp.modelviews.SendData;
+import com.swadallail.nileapp.orderpro.OrderProgress;
 
 import java.util.ArrayList;
 
@@ -68,11 +71,20 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MyHolder
             if (first == 'h') {
                 Log.e("image22222", messages.get(position).images);
                 Picasso.get().load(messages.get(position).images).into(holder.messageimg);
-            }else {
+            } else {
                 byte[] decodedString = Base64.decode(messages.get(position).images, Base64.DEFAULT);
                 Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                 holder.messageimg.setImageBitmap(decodedByte);
             }
+            holder.messageimg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent in = new Intent(context, DisplayImage.class);
+                    in.putExtra("img", messages.get(position).images);
+                    context.startActivity(in);
+                }
+            });
+
         } else {
             holder.messageimg.setVisibility(View.GONE);
         }

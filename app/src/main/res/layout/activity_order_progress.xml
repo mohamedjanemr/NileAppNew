@@ -25,10 +25,10 @@
                 android:layout_height="match_parent"
                 >
                 <ImageView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="200dp"
-                    android:layout_marginBottom="10dp"
                     android:src="@drawable/ad"
+                    android:scaleType="centerInside"
                     android:layout_marginTop="10dp"
                     android:layout_gravity="center"
                     android:id="@+id/img_order"

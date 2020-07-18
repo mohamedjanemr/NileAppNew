@@ -74,7 +74,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ChatActivity extends AppCompatActivity {
-    ChatNewService chatService;
+    ChatService chatService;
     boolean mBound = false;
     MyReceiver myReceiver;
     MessageAdapter adapter;
@@ -87,6 +87,7 @@ public class ChatActivity extends AppCompatActivity {
     int PERMISSION_REQUEST_CODE = 200;
     String encodedImage = "";
     ImageButton sendButton;
+    int chatID  ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +107,12 @@ public class ChatActivity extends AppCompatActivity {
         registerReceiver(myReceiver, intentFilter);
         Log.e("userid", user_id + "");
         Log.e("chatid", finalchatid + "");
-        getChatMessages(user_id, finalchatid);
+        if(user_id != null){
+            getChatID(user_id);
+        }else {
+            getChatMessages("", finalchatid);
+        }
+
         gridView = findViewById(R.id.gvMessages);
 
         //gridView.setTranscriptMode(GridView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
@@ -142,11 +148,11 @@ public class ChatActivity extends AppCompatActivity {
                         sendButton.setImageDrawable(getDrawable(R.drawable.ic_send_blue));
                     }
                 });
-                if (message.isEmpty() && encodedImage.equals("") ) {
+                if (message.isEmpty() && encodedImage.equals("")) {
                     Toast.makeText(ChatActivity.this, "رجاء قم بكتابة الرسالة او قم بأدراج صورة", Toast.LENGTH_SHORT).show();
                 } else if (encodedImage.equals("") && editText.getText().toString().trim().matches("")) {
                     Toast.makeText(ChatActivity.this, "رجاء قم بأدخال نص لا يسمح بالمساحات", Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
                     editText.setText("");
                     CustomMessage object = new CustomMessage();
                     object.Message = message;
@@ -193,14 +199,50 @@ public class ChatActivity extends AppCompatActivity {
 //
 
     }
+
     private void binserviceing(String token) {
         Intent intent = null;
-        intent = new Intent(this, ChatNewService.class);
+        intent = new Intent(this, ChatService.class);
         // Create a new Messenger for the communication back
         // From the Service to the Activity
         intent.putExtra("Token", token);
 
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+    void getChatID(String id){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://www.nileappco.com/api/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiInterface userclient = retrofit.create(ApiInterface.class);
+        MessageBody body = new MessageBody(0, id);
+        Log.e("Bodytttttt", "" + id);
+        //String token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYUBhLmNvbSIsInN1YiI6ImFAYS5jb20iLCJqdGkiOiJhZjFkMTNkMC00NzViLTQ2OWMtOWEwYi01YmU5NzE5YWJjMTciLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAyN2Y2MWJiLWFlNzUtNGE2Yy04YWY4LWE5MDcyNmFlM2IyOCIsIlVzZXJJZCI6IjAyN2Y2MWJiLWFlNzUtNGE2Yy04YWY4LWE5MDcyNmFlM2IyOCIsImV4cCI6MTU5MjMyOTcxMywiaXNzIjoiUmF6TmV0LmNvbSIsImF1ZCI6IlJhek5ldC5jb20ifQ.ZoImLshfPppUM7qrURMeIBV-61YNeWAqF9Ge1lQ4N0w";
+        String token = "Bearer " + SharedHelper.getKey(ChatActivity.this, "token");
+        Call<MainResponse<ChatResponse<ArrayList<MessageViewModel>>>> call = userclient.GetChatMessages(token, body);
+        call.enqueue(new Callback<MainResponse<ChatResponse<ArrayList<MessageViewModel>>>>() {
+            @Override
+            public void onResponse(Call<MainResponse<ChatResponse<ArrayList<MessageViewModel>>>> call, Response<MainResponse<ChatResponse<ArrayList<MessageViewModel>>>> response) {
+                if (response.body() != null) {
+                    if (response.body().success) {
+                        Log.e("Sizettttt" , response.body().data.messages.size()+"");
+
+                        chatID = response.body().data.getChatId();
+                        getChatMessages("", chatID);
+                        Log.e("ChatIDIDIDID" , chatID+"");
+                        //chatname = response.body().data.messages.get(0).from;
+
+                    }
+                }
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Call<MainResponse<ChatResponse<ArrayList<MessageViewModel>>>> call, Throwable t) {
+                Log.e("Bodyttttttttt", "" + t);
+            }
+        });
+
     }
     private void getChatMessages(String user_id, int chatId) {
         dialog = new ProgressDialog(ChatActivity.this);
@@ -209,7 +251,7 @@ public class ChatActivity extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://test.nileappco.com/api/")
+                .baseUrl("https://www.nileappco.com/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
@@ -222,65 +264,72 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<MainResponse<ChatResponse<ArrayList<MessageViewModel>>>> call, Response<MainResponse<ChatResponse<ArrayList<MessageViewModel>>>> response) {
                 if (response.body() != null) {
+                    if (response.body().data != null) {
+                        Log.e("Size" , response.body().data.messages.size()+"");
 
-                    finalchatid = response.body().data.chatId;
-                    //chatname = response.body().data.messages.get(0).from;
-                    if (response.body().data.messages.size() > 0) {
-                        Globals.Messages = response.body().data.messages;
-                    } else {
-                        Toast.makeText(ChatActivity.this, "لا يوجد محادثة من قبل", Toast.LENGTH_SHORT).show();
-                        gridView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
-                        adapter = new MessageAdapter(ChatActivity.this, Globals.Messages);
-                        gridView.setAdapter(adapter);
-                        gridView.scrollToPosition(adapter.getItemCount() - 1);
-                        //scrollToBottom();
-                        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-                            @Override
-                            public void onChanged() {
-                                super.onChanged();
-                                gridView.scrollToPosition(adapter.getItemCount() - 1);
-                                //scrollToBottom();
+                        finalchatid = response.body().data.chatId;
+                        //chatname = response.body().data.messages.get(0).from;
+                        if (response.body().data.messages.size() > 0) {
+                            try{
+                                Log.e("CHATID" , finalchatid+"");
+                            }catch (Exception e){
+                                Log.e("Error" , e.toString());
                             }
-                        });
+                            Globals.Messages = response.body().data.messages;
+                        } else {
+                            Toast.makeText(ChatActivity.this, "لا يوجد محادثة من قبل", Toast.LENGTH_SHORT).show();
+                            gridView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
+                            adapter = new MessageAdapter(ChatActivity.this, response.body().data.messages);
+                            gridView.setAdapter(adapter);
+                            gridView.scrollToPosition(adapter.getItemCount() - 1);
+                            //scrollToBottom();
+                            adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                                @Override
+                                public void onChanged() {
+                                    super.onChanged();
+                                    gridView.scrollToPosition(adapter.getItemCount() - 1);
+                                    //scrollToBottom();
+                                }
+                            });
+                        }
+
+
+                        for (int i = 0; i < response.body().data.messages.size(); i++) {
+                            if (response.body().data.messages.get(i).isMine == 1) {
+                                gridView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
+                                adapter = new MessageAdapter(ChatActivity.this, response.body().data.messages, 1);
+                                gridView.setAdapter(adapter);
+                                gridView.scrollToPosition(adapter.getItemCount() - 1);
+                                //gridView.setAdapter(adapter);
+
+                                //scrollToBottom();
+                                adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                                    @Override
+                                    public void onChanged() {
+                                        super.onChanged();
+                                        gridView.scrollToPosition(adapter.getItemCount() - 1);
+                                        //  scrollToBottom();
+                                    }
+                                });
+                            } else {
+                                gridView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
+                                adapter = new MessageAdapter(ChatActivity.this, response.body().data.messages, 0);
+                                gridView.setAdapter(adapter);
+                                gridView.scrollToPosition(adapter.getItemCount() - 1);
+                                //gridView.setAdapter(adapter);
+                                //scrollToBottom();
+                                adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                                    @Override
+                                    public void onChanged() {
+                                        super.onChanged();
+                                        gridView.scrollToPosition(adapter.getItemCount() - 1);
+                                        //scrollToBottom();
+                                    }
+                                });
+                            }
+                        }
                     }
                 }
-
-
-                for (int i = 0; i < response.body().data.messages.size(); i++) {
-                    if (response.body().data.messages.get(i).isMine == 1) {
-                        gridView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
-                        adapter = new MessageAdapter(ChatActivity.this, Globals.Messages, 1);
-                        gridView.setAdapter(adapter);
-                        gridView.scrollToPosition(adapter.getItemCount() - 1);
-                        //gridView.setAdapter(adapter);
-
-                        //scrollToBottom();
-                        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-                            @Override
-                            public void onChanged() {
-                                super.onChanged();
-                                gridView.scrollToPosition(adapter.getItemCount() - 1);
-                                //  scrollToBottom();
-                            }
-                        });
-                    } else {
-                        gridView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
-                        adapter = new MessageAdapter(ChatActivity.this, Globals.Messages, 0);
-                        gridView.setAdapter(adapter);
-                        gridView.scrollToPosition(adapter.getItemCount() - 1);
-                        //gridView.setAdapter(adapter);
-                        //scrollToBottom();
-                        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-                            @Override
-                            public void onChanged() {
-                                super.onChanged();
-                                gridView.scrollToPosition(adapter.getItemCount() - 1);
-                                //scrollToBottom();
-                            }
-                        });
-                    }
-                }
-
                 dialog.dismiss();
             }
 
@@ -291,25 +340,19 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    /*@Override
+    @Override
     protected void onStop() {
-        if(mBound){
-            unbindService(mConnection);
-            unregisterReceiver(myReceiver);
-            mBound = false;
-        }
 
-        Log.e("OnStop::" ,"chat Stoped");
         //Globals.Messages.clear();
         super.onStop();
 
-    }*/
+    }
 
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            ChatNewService.LocalBinder binder = (ChatNewService.LocalBinder) service;
+            ChatService.LocalBinder binder = (ChatService.LocalBinder) service;
             chatService = binder.getService();
             mBound = true;
         }
@@ -341,15 +384,23 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (mBound) {
+            unbindService(mConnection);
+            unregisterReceiver(myReceiver);
+            mBound = false;
+        }
+
+        Log.e("OnStop::", "chat Stoped");
         SharedHelper.putKey(ChatActivity.this, "opened", "no");
         //Globals.Messages.clear();
-
+        //SharedHelper.putKey(ChatActivity.this, "token", "null");
         super.onDestroy();
     }
 
     @Override
     protected void onPause() {
         SharedHelper.putKey(ChatActivity.this, "opened", "no");
+        //SharedHelper.putKey(ChatActivity.this, "token", "null");
         super.onPause();
     }
 

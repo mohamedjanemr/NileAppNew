@@ -34,16 +34,17 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ChatRooms extends AppCompatActivity {
-    ActivityChatRoomsBinding binding ;
-    MyHandlers handlers ;
+    ActivityChatRoomsBinding binding;
+    MyHandlers handlers;
     ProgressDialog dialog;
-    RoomsAdapter adapter ;
-    ArrayList<ChatUsersResponse> list ;
+    RoomsAdapter adapter;
+    ArrayList<ChatUsersResponse> list;
+
     @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this , R.layout.activity_chat_rooms);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_chat_rooms);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("المحادثات");
@@ -54,13 +55,13 @@ public class ChatRooms extends AppCompatActivity {
     }
 
     private void getChats() {
-        String url = "https://test.nileappco.com/api/";
+        String url = "https://www.nileappco.com/api/";
         dialog = new ProgressDialog(ChatRooms.this);
         dialog.setMessage(getApplicationContext().getResources().getString(R.string.the_data_is_loaded));
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
-        String token = "Bearer "+ SharedHelper.getKey(ChatRooms.this , "token");
+        String token = "Bearer " + SharedHelper.getKey(ChatRooms.this, "token");
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -70,32 +71,41 @@ public class ChatRooms extends AppCompatActivity {
         call.enqueue(new Callback<MainResponse<ArrayList<ChatResponse<ChatUsersResponse>>>>() {
             @Override
             public void onResponse(Call<MainResponse<ArrayList<ChatResponse<ChatUsersResponse>>>> call, Response<MainResponse<ArrayList<ChatResponse<ChatUsersResponse>>>> response) {
-                Log.e("Response" , ""+response.body().data.size());
+                //Log.e("Response" , ""+response.body().data.size());
                 /*for (int i = 0 ; i < response.body().data.size() ; i++){
                     //Log.e("INTID" , ""+response.body().data.get(i).users.get(i).chatId);
                 }*/
-                binding.recChats.setLayoutManager(new LinearLayoutManager(ChatRooms.this));
-                adapter = new RoomsAdapter(ChatRooms.this ,  response.body().data);
-                binding.recChats.setAdapter(adapter);
-                dialog.dismiss();
+                if (response.body() != null) {
+                    if(response.body().data != null) {
+                        binding.recChats.setLayoutManager(new LinearLayoutManager(ChatRooms.this));
+                        adapter = new RoomsAdapter(ChatRooms.this, response.body().data);
+                        binding.recChats.setAdapter(adapter);
+                        dialog.dismiss();
+                    } else {
+                        dialog.dismiss();
+                    }
+                }
+
             }
 
             @Override
             public void onFailure(Call<MainResponse<ArrayList<ChatResponse<ChatUsersResponse>>>> call, Throwable t) {
-                Log.e("ResponseError" , ""+t);
+                Log.e("ResponseError", "" + t);
                 dialog.dismiss();
             }
         });
         //
     }
 
-    public class MyHandlers{
-        Context co ;
-        public MyHandlers(Context context){
+    public class MyHandlers {
+        Context co;
+
+        public MyHandlers(Context context) {
             context = this.co;
         }
 
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

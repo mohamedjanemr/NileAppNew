@@ -173,6 +173,7 @@ public class AuthPhone extends AppCompatActivity {
                     //ob.setmCallBacks(mCallback);
 
                     startActivity(intent2);
+                    finish();
 
                 } catch (Exception e) {
                 }

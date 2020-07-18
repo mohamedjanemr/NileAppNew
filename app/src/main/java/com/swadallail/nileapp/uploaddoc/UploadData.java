@@ -49,7 +49,7 @@ public class UploadData extends AppCompatActivity {
     ProgressDialog dialog;
     int PERMISSION_REQUEST_CODE = 200;
     Bitmap user_natface, user_natback, user_profile, user_lic;
-    String encodedImagenatFace , encodednatBackground, encodedprofile, encodedlic, idNum, phone, fullname;
+    String encodedImagenatFace , encodednatBackground, encodedprofile, encodedlic, idNum, phone, fullname , identityNo;
 
 
     @Override
@@ -151,19 +151,19 @@ public class UploadData extends AppCompatActivity {
             dialog.setCanceledOnTouchOutside(false);
             dialog.setCancelable(false);
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://test.nileappco.com/api/")
+                    .baseUrl("https://www.nileappco.com/api/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             ApiInterface userclient = retrofit.create(ApiInterface.class);
             String to = "Bearer " + SharedHelper.getKey(UploadData.this, "token");
-            RequestRepreBody body = new RequestRepreBody(fullname, phone, encodedImagenatFace, encodednatBackground, encodedlic, encodedprofile);
+            RequestRepreBody body = new RequestRepreBody(fullname, phone, encodedImagenatFace, encodednatBackground, encodedlic, encodedprofile,idNum);
             Call<MainResponse> call = userclient.requestRepre(to, body);
             call.enqueue(new Callback<MainResponse>() {
                 @Override
                 public void onResponse(Call<MainResponse> call, Response<MainResponse> response) {
                     dialog.dismiss();
-                    if (response.isSuccessful()) {
-                        if (response.body() != null) {
+                    if (response.body() != null) {
+                        if (response.body().success) {
                             Toast.makeText(UploadData.this, "تم ارسال طلبكم بنجاح", Toast.LENGTH_LONG).show();
                         }
                     } else {

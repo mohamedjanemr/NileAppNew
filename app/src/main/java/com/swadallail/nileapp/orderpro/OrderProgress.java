@@ -23,10 +23,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
+import com.swadallail.nileapp.ImgView.DisplayImage;
 import com.swadallail.nileapp.MainActivity;
 import com.swadallail.nileapp.R;
 import com.swadallail.nileapp.Services.ChatService;
 import com.swadallail.nileapp.chatpage.ChatActivity;
+import com.swadallail.nileapp.data.BalanceResponse;
 import com.swadallail.nileapp.data.MainResponse;
 import com.swadallail.nileapp.data.PickedBody;
 import com.swadallail.nileapp.data.RateBody;
@@ -34,6 +36,7 @@ import com.swadallail.nileapp.data.UserDataResponse;
 import com.swadallail.nileapp.data.UserLogin;
 import com.swadallail.nileapp.data.UserResponse;
 import com.swadallail.nileapp.databinding.ActivityOrderProgressBinding;
+import com.swadallail.nileapp.helpers.Globals;
 import com.swadallail.nileapp.helpers.SharedHelper;
 import com.swadallail.nileapp.loginauth.LoginAuthActivity;
 import com.swadallail.nileapp.network.ApiInterface;
@@ -95,9 +98,11 @@ public class OrderProgress extends AppCompatActivity {
                 Intent chat = new Intent(OrderProgress.this, ChatActivity.class);
                 if (rule.equals("WebClient")) {
                     chat.putExtra("shopId", repid);
+                    Globals.Messages.clear();
                     startActivity(chat);
                 } else {
                     chat.putExtra("shopId", ownerId);
+                    Globals.Messages.clear();
                     startActivity(chat);
                 }
             }
@@ -166,6 +171,14 @@ public class OrderProgress extends AppCompatActivity {
         } else {
             //Picasso.with(this).load(img).into(binding.imgOrder);
             Picasso.get().load(img).into(binding.imgOrder);
+            binding.imgOrder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent in = new Intent(OrderProgress.this , DisplayImage.class);
+                    in.putExtra("img" , img);
+                    startActivity(in);
+                }
+            });
         }
 
 
@@ -287,19 +300,20 @@ public class OrderProgress extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://test.nileappco.com/api/")
+                .baseUrl("https://www.nileappco.com/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
         PickedBody body = new PickedBody(orderID);
         String token = "Bearer " + SharedHelper.getKey(OrderProgress.this, "token");
-        Call<MainResponse> call = userclient.orderDelivered(token, body);
-        call.enqueue(new Callback<MainResponse>() {
+        Call<MainResponse<BalanceResponse>> call = userclient.orderDelivered(token, body);
+        call.enqueue(new Callback<MainResponse<BalanceResponse>>() {
             @Override
-            public void onResponse(Call<MainResponse> call, Response<MainResponse> response) {
+            public void onResponse(Call<MainResponse<BalanceResponse>> call, Response<MainResponse<BalanceResponse>> response) {
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
                         if (response.body().success) {
+                            SharedHelper.putKey(OrderProgress.this, "balance", "" + response.body().data.getBalance());
                             binding.phoneCall.setVisibility(View.GONE);
                             binding.openChat.setVisibility(View.GONE);
                             Toast.makeText(OrderProgress.this, "تم تسليم الطلب", Toast.LENGTH_LONG).show();
@@ -314,7 +328,7 @@ public class OrderProgress extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<MainResponse> call, Throwable t) {
+            public void onFailure(Call<MainResponse<BalanceResponse>> call, Throwable t) {
                 Toast.makeText(OrderProgress.this, "خطأ فى الشبكة", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             }
@@ -383,7 +397,7 @@ public class OrderProgress extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://test.nileappco.com/api/")
+                .baseUrl("https://www.nileappco.com/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
@@ -421,7 +435,7 @@ public class OrderProgress extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://test.nileappco.com/api/")
+                .baseUrl("https://www.nileappco.com/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
@@ -460,7 +474,7 @@ public class OrderProgress extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://test.nileappco.com/api/")
+                .baseUrl("https://www.nileappco.com/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);

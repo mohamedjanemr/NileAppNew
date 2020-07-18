@@ -77,7 +77,6 @@ public class ChatNewService extends Service {
                             .create("https://test.nileappco.com/chatHub")
                             .withAccessTokenProvider(Single.defer(() -> {
                                 return Single.just(token);
-
                                 //SharedHelper.getKey(getApplicationContext(),"token");
                             })).build();
             new HubTaskNew().execute(hubConnection);

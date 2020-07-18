@@ -50,7 +50,7 @@ public class HistoryOreders extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://test.nileappco.com/api/")
+                .baseUrl("https://www.nileappco.com/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);

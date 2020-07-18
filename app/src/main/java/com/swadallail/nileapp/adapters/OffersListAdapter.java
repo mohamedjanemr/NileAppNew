@@ -120,7 +120,7 @@ public class OffersListAdapter extends RecyclerView.Adapter<OffersListAdapter.My
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://test.nileappco.com/api/")
+                .baseUrl("https://www.nileappco.com/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiInterface userclient = retrofit.create(ApiInterface.class);
@@ -132,7 +132,7 @@ public class OffersListAdapter extends RecyclerView.Adapter<OffersListAdapter.My
             public void onResponse(Call<MainResponse<AcceptRes>> call, Response<MainResponse<AcceptRes>> response) {
                 if(response.body() != null){
                     Log.e("Success" , response.body().success+"");
-                    if (response.body().data != null){
+                    if (response.body().success){
                         if(response.body().data.getOfferId() > 0){
                             if(response.body().success){
                                 Toast.makeText(con, "تم قبول العرض", Toast.LENGTH_SHORT).show();

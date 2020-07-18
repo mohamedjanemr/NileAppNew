@@ -4,13 +4,13 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         config {
-            storeFile file('~/StudioProjects/keystorefile.jks')
+            storeFile file('C:/Users/AAAMA/Downloads/keystorefile.jks')
             keyAlias = 'key0'
             storePassword 'MAZENAPP'
             keyPassword 'MAZENAPP'
         }
         release {
-            storeFile file('~/StudioProjects/keystorefile.jks')
+            storeFile file('C:/Users/AAAMA/Downloads/keystorefile.jks')
             keyAlias = 'key0'
             storePassword 'MAZENAPP'
             keyPassword 'MAZENAPP'
@@ -22,8 +22,8 @@ android {
         applicationId "com.swadallail.nileapp"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 25
-        versionName "2.1.10"
+        versionCode 11
+        versionName "2.1.11"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         useLibrary "org.apache.http.legacy"
         multiDexEnabled true
@@ -50,6 +50,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.google.firebase:firebase-inappmessaging-display:17.0.4'
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
+    implementation 'androidx.work:work-runtime:2.3.4'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -79,8 +82,8 @@ dependencies {
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'me.relex:circleindicator:1.2.2@aar'
-
-    implementation 'com.google.firebase:firebase-analytics:17.2.1'
+    implementation 'com.google.firebase:firebase-analytics:17.4.3'
+    implementation 'com.google.firebase:firebase-messaging:20.2.1'
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.google.firebase:firebase-core:17.2.1'
 
@@ -102,6 +105,8 @@ dependencies {
     // androidTestImplementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'com.facebook.android:facebook-login:[5,6)'
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
+    implementation 'com.google.firebase:firebase-inappmessaging-display:19.0.7'
+    implementation 'com.google.guava:guava:27.0.1-android'
 
 }
 

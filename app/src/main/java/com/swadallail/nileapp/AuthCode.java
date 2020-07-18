@@ -31,6 +31,7 @@ import com.swadallail.nileapp.api.service.UserClient;
 import com.swadallail.nileapp.data.MainResponse;
 import com.swadallail.nileapp.data.PhoneBody;
 import com.swadallail.nileapp.helpers.SharedHelper;
+import com.swadallail.nileapp.loginauth.LoginAuthActivity;
 import com.swadallail.nileapp.network.ApiInterface;
 import com.swadallail.nileapp.registerauth.RegisterAuthActivity;
 
@@ -39,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -94,8 +96,12 @@ public class AuthCode extends AppCompatActivity {
                     dialog.setCanceledOnTouchOutside(false);
                     dialog.setCancelable(false);
                     otp = etOTP.getText().toString();
-                    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationCode, otp);
-                    SigninWithPhone(credential);
+                    if(otp.isEmpty()){
+                        dialog.dismiss();
+                    }else{
+                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationCode, otp);
+                        SigninWithPhone(credential);
+                    }
                 } catch (Exception e) {
 
                 }
@@ -108,7 +114,7 @@ public class AuthCode extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                finish();
+                //finish();
                  /*
                 try{
 
@@ -199,7 +205,7 @@ public class AuthCode extends AppCompatActivity {
                             //finish();
                             try {
                                 confirmUser();
-
+                                dialog.dismiss();
 
 
                             } catch (Exception e) {
@@ -214,9 +220,9 @@ public class AuthCode extends AppCompatActivity {
                 });
     }
 
-    private void confirmUser() {
+    public void confirmUser() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://test.nileappco.com/api/")
+                .baseUrl("https://www.nileappco.com/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -226,22 +232,31 @@ public class AuthCode extends AppCompatActivity {
         String token = "Bearer "+ SharedHelper.getKey(AuthCode.this , "token") ;
         PhoneBody body = new PhoneBody(phoneNumber);
         Call<MainResponse> con = userclient.ConfirmPhone(token , body);
-
-//للتنفيذ
         con.enqueue(new Callback<MainResponse>() {
             @Override
-            public void onResponse(Call<MainResponse> call, retrofit2.Response<MainResponse> response) {
-                if(response.isSuccessful()){
-                    Intent intent2 = new Intent(AuthCode.this, MainActivity.class);
-                    startActivity(intent2);
-                    AuthCode.this.finish();
-                }
+            public void onResponse(Call<MainResponse> call, Response<MainResponse> response) {
+                if (response.body() != null){
+                    if(response.body().success){
+                        if (SharedHelper.getKey(AuthCode.this, "isLoged").equals("yes")){
+                            SharedHelper.putKey(AuthCode.this,"isLoged","no");
+                            Toast.makeText(AuthCode.this, "لقد تم تأكيد رقم الهاتف بنجاح", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(AuthCode.this, LoginAuthActivity.class));
+                            finish();
+                        }else{
+                            Toast.makeText(AuthCode.this, "لقد تم تأكيد رقم الهاتف بنجاح", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(AuthCode.this, LoginAuthActivity.class));
+                            finish();
+                        }
 
+                    }else {
+                        Toast.makeText(AuthCode.this, "هناك خطأ فى الشبكة", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
 
             @Override
             public void onFailure(Call<MainResponse> call, Throwable t) {
-                Toast.makeText(AuthCode.this, "هناك خطأ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AuthCode.this, "هناك خطأ فى الشبكة", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -251,7 +266,7 @@ public class AuthCode extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                onBackPressed();
                 return true;
         }
 
